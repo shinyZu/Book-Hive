@@ -26,6 +26,33 @@ jobs:
         with:
           node-version: '20.11.1'
 
+      # 3. Cache Node.js dependencies for backend
+      - name: Cache Node.js modules for backend
+        uses: actions/cache@v3
+        with:
+          path: ./book-hive-backend/node_modules
+          key: ${{ runner.os }}-node-backend-${{ hashFiles('book-hive-backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-backend-
+
+      # 4. Cache Node.js dependencies for frontend
+      - name: Cache Node.js modules for frontend
+        uses: actions/cache@v3
+        with:
+          path: ./book-hive-frontend/node_modules
+          key: ${{ runner.os }}-node-frontend-${{ hashFiles('book-hive-frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-frontend-
+
+      # 5. Cache Node.js dependencies for discord bot
+      - name: Cache Node.js modules for discordbot
+        uses: actions/cache@v3
+        with:
+          path: ./discord-bot/node_modules
+          key: ${{ runner.os }}-node-discordbot-${{ hashFiles('discord-bot/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-discordbot-
+
       # 6. Install dependencies for all components
       - name: Install dependencies for backend
         working-directory: ./book-hive-backend
