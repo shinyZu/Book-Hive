@@ -56,32 +56,36 @@ jobs:
       #   working-directory: ./discord-bot
       #   run: node bot.js &
 
-      # 6. Print Success Message
-      - name: Mark Success
+      # 6. Print Success Message 1
+      - name: Mark Success of App Build
         run: echo "Build and Package executed successfully!"
 
       # 7. Set up QEMU - this action can be useful if you want to add emulation support with QEMU to be able to build against more platforms.
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      # # 8. Set up docker Buildx - this action will create and boot a builder using by default the docker-container driver. 
-      # # This is not required but recommended using it to be able to build multi-platform images, export cache, etc.
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
+      # 8. Set up docker Buildx - this action will create and boot a builder using by default the docker-container driver. 
+      # This is not required but recommended using it to be able to build multi-platform images, export cache, etc.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # # 9. Login to Docker Hub
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      # 9. Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # # 10. Build & push the docker image
-      # - name: Build & Push Docker Image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: .
-      #     dockerfile: Dockerfile
-      #     push: false
-      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/Book-Hive:$(date-'%Y-%m-%d%H-%M-%S') # tags: ghcr.io/your-username/your-repo-name:latest
+      # 10. Build & push the docker image
+      - name: Build & Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/Book-Hive:$(date-'%Y-%m-%d%H-%M-%S') # tags: ghcr.io/your-username/your-repo-name:latest
+
+      # 11. Print Success Message 2
+      - name: Mark Success of Docker Image Build & Push
+        run: echo "Docker Image was built and pushed to Docker Hub successfully!"
           
