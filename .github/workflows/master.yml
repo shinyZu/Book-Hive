@@ -50,7 +50,7 @@ jobs:
 
       - name: Build and Package the frontend
         working-directory: ./book-hive-frontend
-        run: timeout 5s npm start
+        run: timeout 20s npm start
 
       - name: Run the Discord Bot
         working-directory: ./discord-bot
