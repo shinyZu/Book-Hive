@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20.11.1'
+          node-version: '16'
 
       # 3. Cache Node.js dependencies for backend
       - name: Cache Node.js modules for backend
