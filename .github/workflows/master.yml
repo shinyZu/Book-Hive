@@ -103,32 +103,32 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # 11. Build and push the backend Docker image
-      - name: Build & Push Backend Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./book-hive-backend
-          dockerfile: ./book-hive-backend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-backend:build-${{ github.run_number }}
+      # # 11. Build and push the backend Docker image
+      # - name: Build & Push Backend Docker Image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./book-hive-backend
+      #     dockerfile: ./book-hive-backend/Dockerfile
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-backend:build-${{ github.run_number }}
 
-      # 12. Build and push the frontend Docker image
-      - name: Build & Push Frontend Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./book-hive-frontend
-          dockerfile: ./book-hive-frontend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-frontend:build-${{ github.run_number }}
+      # # 12. Build and push the frontend Docker image
+      # - name: Build & Push Frontend Docker Image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./book-hive-frontend
+      #     dockerfile: ./book-hive-frontend/Dockerfile
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-frontend:build-${{ github.run_number }}
 
-      # 13. Build and push the discord bot Docker image
-      - name: Build & Push Discord Bot Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./discord-bot
-          dockerfile: ./discord-bot/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-discordbot:build-${{ github.run_number }}
+      # # 13. Build and push the discord bot Docker image
+      # - name: Build & Push Discord Bot Docker Image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./discord-bot
+      #     dockerfile: ./discord-bot/Dockerfile
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-discordbot:build-${{ github.run_number }}
 
       # 14. Print Success Message 2
       - name: Mark Success of Docker Image Build & Push
