@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '20.11.1'
 
-      # 3. Install dependencies for all components
+      # 6. Install dependencies for all components
       - name: Install dependencies for backend
         working-directory: ./book-hive-backend
         run: npm install
@@ -56,38 +56,54 @@ jobs:
       #   working-directory: ./discord-bot
       #   run: node bot.js &
 
-      # 6. Print Success Message 1
+      # 7. Print Success Message 1
       - name: Mark Success of App Build
         run: echo "Build and Package executed successfully!"
 
-      # 7. Set up QEMU - this action can be useful if you want to add emulation support with QEMU to be able to build against more platforms.
+      # 8. Set up QEMU - this action can be useful if you want to add emulation support with QEMU to be able to build against more platforms.
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      # 8. Set up docker Buildx - this action will create and boot a builder using by default the docker-container driver. 
+      # 9. Set up docker Buildx - this action will create and boot a builder using by default the docker-container driver. 
       # This is not required but recommended using it to be able to build multi-platform images, export cache, etc.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 9. Login to Docker Hub
+      # 10. Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # 10. Build & push the docker image
-      - name: Build & Push Docker Image
+      # 11. Build and push the backend Docker image
+      - name: Build & Push Backend Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          dockerfile: Dockerfile
+          context: ./book-hive-backend
+          dockerfile: ./book-hive-backend/Dockerfile
           push: true
-          # tags: ghcr.io/your-username/your-repo-name:latest
-          # tags: ${{ secrets.DOCKER_HUB_USERNAME }}/Book-Hive:$(date-'%Y-%m-%d%H-%M-%S')
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive:build-${{ github.run_number }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-backend:build-${{ github.run_number }}
 
-      # 11. Print Success Message 2
+      # 12. Build and push the frontend Docker image
+      - name: Build & Push Frontend Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./book-hive-frontend
+          dockerfile: ./book-hive-frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-frontend:build-${{ github.run_number }}
+
+      # 13. Build and push the discord bot Docker image
+      - name: Build & Push Discord Bot Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./discord-bot
+          dockerfile: ./discord-bot/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive-discordbot:build-${{ github.run_number }}
+
+      # 14. Print Success Message 2
       - name: Mark Success of Docker Image Build & Push
         run: echo "Docker Image was built and pushed to Docker Hub successfully!"
           
