@@ -85,7 +85,7 @@ jobs:
           push: true
           # tags: ghcr.io/your-username/your-repo-name:latest
           # tags: ${{ secrets.DOCKER_HUB_USERNAME }}/Book-Hive:$(date-'%Y-%m-%d%H-%M-%S')
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/Book-Hive:build-${{ github.run_number }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/book-hive:build-${{ github.run_number }}
 
       # 11. Print Success Message 2
       - name: Mark Success of Docker Image Build & Push
