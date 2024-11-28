@@ -1,0 +1,19 @@
+{
+  "name": "book-hive-backend",
+  "version": "1.0.0",
+  "description": "A Book Recommendation System where users can track the books they’ve read, leave reviews, and manage their book collection.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "shinyZu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
