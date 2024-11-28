@@ -2,15 +2,10 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
-const UserSchema = new Schema(
+const LoginSchema = new Schema(
   {
-    user_id: { 
+    id: { 
         type: Number,
-        required: true,
-        unique: true
-    },
-    username: {
-        type: String,
         required: true,
         unique: true
     },
@@ -32,26 +27,20 @@ const UserSchema = new Schema(
         minLength: [8, "Password should be at least 8 characters"],
         maxlength: 1024,
     },
-    contact_no: {
-        type: Number,
+    login_time: { 
+        type: Date,
         required: true,
-        unique: true,
-        validate: {
-            validator: function (val) {
-                return val.toString().length === 9;
-            },
-            message: "Invalid Contact Number!",
-        },
-      },
-    linkedDiscordId: { 
-        type: String
+    },
+    logout_time: { 
+        type: Date,
+        required: true,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically creates and updates `createdAt` and `updatedAt` fields.
   }
 );
 
-const User = mongoose.model('User', UserSchema);
+const Login = mongoose.model('Login', LoginSchema);
 
-export default User;
+export default Login;

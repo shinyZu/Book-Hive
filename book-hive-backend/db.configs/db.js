@@ -7,9 +7,7 @@ dotenv.config();
 const url = process.env.URL;
 
 // Create MongoDB Connection
-const establishConnection = mongoose.connect(url, {
-  useNewUrlParser: true,
-});
+const establishConnection = mongoose.connect(url);
 
 const conn = mongoose.connection;
 

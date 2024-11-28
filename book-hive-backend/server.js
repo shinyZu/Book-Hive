@@ -5,10 +5,14 @@ import { establishConnection } from "./db.configs/db.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4001;
+
+// Middleware
+app.use(express.json());
 
 // Invoke the method to establish connection with mongoDB
 establishConnection;
+
+const PORT = process.env.PORT || 4001;
 
 const baseURL = "/book-hive/api/";
 
