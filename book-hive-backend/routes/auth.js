@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import Login from "../models/login.models.js"
 import User from "../models/user.models.js"
 
+import { refreshToken, verifyToken, authenticateAdminToken, authenticateReaderToken } from "../middleware/auth.js";
+
 dotenv.config();
 
 const app = express();
@@ -19,13 +21,37 @@ const accessToken_expires_in = "1800 seconds"
 const refreshToken_expires_in = "24 hours"
 
 // Get all logged users
-router.get("/getAll", cors(), async (req, res) => {
+router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll -auth")
+    // try {
+    //   const loggedUsers = await Login.find();
+    //   return res.status(200).json({ status: 200, data: loggedUsers });
+    // } catch (error) {
+    //   return res.status(500).send({ status: 500, message: error });
+    // }
+
     try {
       const loggedUsers = await Login.find();
-      return res.status(200).json({ status: 200, data: loggedUsers });
+      
+      if (loggedUsers.length === 0) {
+          return res.status(200).json({ 
+              status: 200, 
+              message: "No users found in the database.", 
+              data: [] 
+          });
+      }
+  
+      return res.status(200).json({ 
+          status: 200, 
+          message: "Logged users retrieved successfully.", 
+          data: loggedUsers 
+      });
     } catch (error) {
-      return res.status(500).send({ status: 500, message: error });
+      return res.status(500).json({ 
+        status: 500, 
+        message: "An error occurred while fetching logged users.", 
+        error: error.message 
+      });
     }
 });
 
@@ -64,29 +90,31 @@ router.post("/signup", cors(), async (req, res) => {
       const hashedPassword = await bcrypt.hash(body.password, salt);
   
       // Create a new user instance
-      const user = new User({
-        user_id: nextUserId,
-        username: body.username,
-        email: body.email,
-        password: hashedPassword,
-        contact_no: body.contact_no,
-        user_role: body.user_role,
-        linked_discord_id: body.linked_discord_id,
+      const newUser = new User({
+          user_id: nextUserId,
+          first_name: body.first_name,
+          last_name: body.last_name,
+          username: body.username,
+          email: body.email,
+          password: hashedPassword,
+          contact_no: body.contact_no,
+          user_role: body.user_role,
+          linked_discord_id: body.linked_discord_id,
       });
   
       // Save the user to the database
-      const savedUser = await user.save();
+      const savedUser = await newUser.save();
       console.log("======savedUser=======")
       // console.log(savedUser)
 
       // Call login() in login router
       let tokenData = await generateToken(
-        nextUserId,
-        body.username,
-        body.email,
-        hashedPassword,
-        body.user_role,
-        res
+          nextUserId,
+          body.username,
+          body.email,
+          hashedPassword,
+          body.user_role,
+          res
       );
 
       console.log("=============== signup - tokenData in auth.js: ===============");
@@ -151,11 +179,11 @@ router.post("/login", cors(), async (req, res) => {
         .send({ status: 400, message: "Incorrect password." });
 
     const tokenData = await generateToken(
-      userExist.user_id,
-      userExist.username,
-      req.body.email,
-      userExist.password,
-      userExist.user_role,
+        userExist.user_id,
+        userExist.username,
+        req.body.email,
+        userExist.password,
+        userExist.user_role,
       res
     );
 
@@ -164,27 +192,27 @@ router.post("/login", cors(), async (req, res) => {
 
     try {
       if (tokenData) {
-        return res.status(201).send({
-          status: 201, 
-          message: "User logged in successfully!", 
-          data: tokenData
-        });
+          return res.status(201).send({
+            status: 201, 
+            message: "User logged in successfully!", 
+            data: tokenData
+          });
 
       } else {
-        res.status(400).send({ status: 400, message: 'Failed to login' });
+          res.status(400).send({ status: 400, message: 'Failed to login' });
       }
 
     } catch (err) {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ status: 400, message: err.message });
+          res.status(400).send({ status: 400, message: err.message });
 
       } else if (err.code === 11000) { // Handle duplicate key errors
-        const duplicateField = Object.keys(err.keyPattern)[0];
-        const message = `A user with the same ${duplicateField} already exists.`;
-        res.status(400).send({ status: 400, message });
+          const duplicateField = Object.keys(err.keyPattern)[0];
+          const message = `A user with the same ${duplicateField} already exists.`;
+          res.status(400).send({ status: 400, message });
         
       } else {
-        res.status(500).send({ status: 500, message: 'Server error' });
+          res.status(500).send({ status: 500, message: 'Server error' });
       }
     }
 
@@ -230,14 +258,14 @@ const generateToken = async (
       let jwtRefreshKey = process.env.JWT_REFRESH_KEY;
 
       let data = {
-        time: Date(),
-        user_id: user_id,
-        username: username,
-        email: email,
-        password: hashedPassword,
-        user_role: user_role,
-        accessToken_expires_in: accessToken_expires_in, 
-        refreshoken_expires_in: refreshToken_expires_in, 
+          time: Date(),
+          user_id: user_id,
+          username: username,
+          email: email,
+          password: hashedPassword,
+          user_role: user_role,
+          accessToken_expires_in: accessToken_expires_in, 
+          refreshoken_expires_in: refreshToken_expires_in, 
       };
 
       // console.log(data);
@@ -261,30 +289,30 @@ const generateToken = async (
       }
 
       const login = new Login({
-        id: nextId,
-        email: email,
-        password: hashedPassword,
-        user_role: user_role,
-        login_time: Date.now(),
+          id: nextId,
+          email: email,
+          password: hashedPassword,
+          user_role: user_role,
+          login_time: Date.now(),
       });
 
       // Save the login details
       const loggedInUser = await login.save();
 
       let tokenObj = {
-        // logged_user: loggedInUser,
-        user_id: user_id,
-        user_role: user_role,
-        token_type: "Bearer",
-        access_token: bearer_accessToken,
-        // expires_in: 3600 / 60 + " min",
-        access_token_expires_in: accessToken_expires_in,
-        refresh_token: bearer_refreshToken,
-        refresh_token_expires_in: refreshToken_expires_in,
+          // logged_user: loggedInUser,
+          user_id: user_id,
+          user_role: user_role,
+          token_type: "Bearer",
+          access_token: bearer_accessToken,
+          // expires_in: 3600 / 60 + " min",
+          access_token_expires_in: accessToken_expires_in,
+          refresh_token: bearer_refreshToken,
+          refresh_token_expires_in: refreshToken_expires_in,
       };
       return tokenObj;
     } catch (err) {
-      return res.status(400).send({ status: 400, message: err.message });
+        return res.status(400).send({ status: 400, message: err.message });
     }
 };
 

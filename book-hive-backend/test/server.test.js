@@ -1,13 +1,14 @@
 process.env.NODE_ENV = 'test';
 
-import * as chai from "chai";
-import {default as chaiHttp, request} from "chai-http";
+import * as chai from "chai"; // Import all from 'chai' as a named import
+import {default as chaiHttp, request} from "chai-http";  // If you need to access `request`
 
-import server from "../server.js";
+import server from "../server.js";  // Import Express app
 
 const { expect } = chai;
 const should = chai.should();
-chai.use(chaiHttp);
+
+chai.use(chaiHttp);  // Tell Chai to use chai-http plugin
 
 const baseURL = "/book-hive/api";
 

@@ -1,26 +1,63 @@
 process.env.NODE_ENV = 'test';
 
-import * as chai from 'chai'; // Import all from 'chai' as a named import
-import {default as chaiHttp, request} from "chai-http"; // If you need to access `request`
+import * as chai from 'chai'; 
+import {default as chaiHttp, request} from "chai-http";
 
-import server from '../server.js';  // Import the Express app
+import server from '../server.js'; 
 import User from "../models/user.models.js" 
-import Login from "../models/login.models.js" 
+
 import bcrypt from "bcryptjs";
+import { generateToken } from "../routes/auth.js"
 
 const { expect } = chai;
 const should = chai.should();
 
-chai.use(chaiHttp); // Tell Chai to use chai-http plugin
+chai.use(chaiHttp);
 
-const baseURL = "/book-hive/api";  // Base URL for the API endpoints
+const baseURL = "/book-hive/api";  
 
 // Using BDD-style should assertions
 describe('GET /auth/getAll', () => {
 
-    it('should get all logged users', (done) => {
+    let adminToken;
+    let hashedPassword;
+    let salt;
+
+    before(async () => {
+
+        // Hash the password
+        salt = await bcrypt.genSalt(10);
+        hashedPassword = await bcrypt.hash('admin10000', salt);
+
+        // Define admin user details
+        const adminDetails = {
+            user_id: 0,
+            username: 'admin1',
+            email: 'admin1@gmail.com',
+            hashedPassword: hashedPassword,
+            user_role: 'admin',
+        };
+
+        // Generate admin token
+        const tokenData = await generateToken(
+            adminDetails.user_id,
+            adminDetails.username,
+            adminDetails.email,
+            adminDetails.hashedPassword,
+            adminDetails.user_role
+        );
+
+        if (!tokenData || !tokenData.access_token) {
+            throw new Error('Token generation failed or returned an invalid structure.');
+        }
+
+        adminToken = tokenData.access_token; // Extract the access token
+    });
+
+    it('should get all logged users only by admin', (done) => {
         request.execute(server)
             .get(`${baseURL}/auth/getAll`)
+            .set('Authorization', `Bearer ${adminToken}`) // Add the token to the header
             .end((err, res) => {
                 if (err) {
                     done(err);  // In case of error, pass it to the done callback
@@ -30,7 +67,6 @@ describe('GET /auth/getAll', () => {
                 }
             });
     });
-
 });
 
 // Using BDD-style expect assertions
@@ -39,6 +75,8 @@ describe('POST /auth/signup', () => {
 
         const newUser = {
             user_id: 1,
+            first_name:'Test',
+            last_name:'User1',
             username: 'testuser1',
             email: 'testuser1@gmail.com',
             password: 'password1111',
@@ -217,6 +255,8 @@ describe('POST /auth/login', () => {
         // Create a new user object
         newUser = {
             user_id: 2,
+            first_name:'Test',
+            last_name:'User2',
             username: 'testuser2',
             email: 'testuser2@gmail.com', // Ensure this is unique
             password: hashedPassword,
@@ -235,6 +275,8 @@ describe('POST /auth/login', () => {
         // Create a new user object
         newUser = {
             user_id: 3,
+            first_name:'Test',
+            last_name:'User3',
             username: 'testuser3',
             email: 'testuser3@gmail.com', // Ensure this is unique
             password: hashedPassword,
@@ -319,9 +361,9 @@ describe('POST /auth/login', () => {
             if (err) return done(err);
 
             console.log('\n');
-                console.log("Response Status", res.status);
-                console.log("Response Body", res.text);
-                console.log('\n');
+            console.log("Response Status", res.status);
+            console.log("Response Body", res.text);
+            console.log('\n');
     
             expect(res).to.have.status(400);
             expect(res.body).to.have.property('status').that.equals(400);
