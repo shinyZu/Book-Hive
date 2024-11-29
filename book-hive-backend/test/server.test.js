@@ -43,6 +43,11 @@ describe('GET /server', () => {
 })
 
 /* 
+
+    end() callback: 
+        - This is where you define the assertions (such as checking the response status). 
+        - Once the test is complete, call done() to tell Mocha the test is finished.
+
     chai-http
         - a plugin for chai assertion library
         - allows to http integration testing with chai assertions(statement/conditions)
@@ -55,6 +60,10 @@ describe('GET /server', () => {
         - comes in two flavors: expect and should. 
             - Both use the same chainable language to construct assertions, but they differ in the way an assertion is initially constructed.
             - In both scenarios, you chain together natural language assertions.
+
+    Hook
+        - used to set up preconditions and clean up after the tests.
+        - before(), after(), beforeEach(), and afterEach()
 */
 
 

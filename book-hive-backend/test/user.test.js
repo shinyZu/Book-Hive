@@ -28,8 +28,3 @@ describe('GET /users', () => {
     });
 
 });
-
-/* 
-    end() callback: This is where you define the assertions (such as checking the response status). 
-    Once the test is complete, call done() to tell Mocha the test is finished.
-*/

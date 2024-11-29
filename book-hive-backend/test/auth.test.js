@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 import * as chai from 'chai'; // Import all from 'chai' as a named import
 import {default as chaiHttp, request} from "chai-http"; // If you need to access `request`
 
-import server from '../server.js';  // Import your Express app
+import server from '../server.js';  // Import the Express app
 
 const { expect } = chai;
 const should = chai.should();
@@ -11,6 +11,9 @@ const should = chai.should();
 chai.use(chaiHttp); // Tell Chai to use chai-http plugin
 
 const baseURL = "/book-hive/api";  // Base URL for the API endpoints
+
+// Cleanup actions before and after the tests
+
 
 
 // Using BDD-style should assertions
@@ -176,9 +179,3 @@ describe('POST /auth/signup', () => {
             })
     })
 })
-
-
-/* 
-    end() callback: This is where you define the assertions (such as checking the response status). 
-    Once the test is complete, call done() to tell Mocha the test is finished.
-*/
