@@ -1,12 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import { establishConnection } from "./db.configs/db.js";
+import cors from "cors";
 
 import user from "./routes/user.js";
 import * as auth from "./routes/auth.js"
 import token from "./routes/token.js";
 
 const app = express();
+app.use(cors());
 
 dotenv.config();
 

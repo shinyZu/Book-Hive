@@ -35,9 +35,6 @@ const LoginSchema = new Schema(
         type: Date,
         required: true,
     },
-    logout_time: { 
-        type: Date,
-    },
   },
   {
     timestamps: true, // Automatically creates and updates `createdAt` and `updatedAt` fields.

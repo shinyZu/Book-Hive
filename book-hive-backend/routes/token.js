@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { refreshToken } from "../middleware/auth.js"
 
+import Login from "../models/login.models.js"
+import User from "../models/user.models.js"
+
 const app = express();
 const router = express.Router();
 
@@ -17,73 +20,73 @@ const accessToken_expires_in = "1800 seconds"
 const refreshToken_expires_in = "24 hours"
 
 // Generate Token 
-router.post("/generate", cors(), async (
-        user_id,
-        username,
-        email,
-        hashedPassword,
-        user_role,
-        res
-    ) => {
-        try {
-            //create and assign a token
+router.post("/generate", cors(), async (req, res) => {
+    try{
+        // Validate User Here - if a user exists in the db with the given credentials
+        console.log(req.body.email);
+    
+        const userExist = await User.findOne({ email: req.body.email });
+        const userAlreadyLogged = await Login.findOne({ email: req.body.email });
+    
+        if (userExist && userAlreadyLogged) {
+            // Then generate JWT Token
             let jwtSecretKey = process.env.JWT_SECRET_KEY;
-            let jwtRefreshKey = process.env.JWT_REFRESH_KEY;
+    
+            // const salt = await bcrypt.genSalt(10);
+            // hashedPassword = await bcrypt.hash(req.body.password, salt);
+    
+            const validPassword = await bcrypt.compare(
+                req.body.password,
+                userExist.password
+            );
+        
+            if (!validPassword)
+                return res
+                    .status(400)
+                    .send({ status: 400, message: "Invalid password." });
     
             let data = {
                 time: Date(),
-                user_id: user_id,
-                username: username,
-                email: email,
-                password: hashedPassword,
-                user_role: user_role,
-                accessToken_expires_in: accessToken_expires_in, 
-                refreshoken_expires_in: refreshToken_expires_in, 
+                user_id: userExist.user_id,
+                username: userExist.username,
+                email: req.body.email,
+                password: userExist.password,
+                user_role: userExist.user_role,
+                expires_in: accessToken_expiresIn,
+            };
+            
+            const token = jwt.sign(data, jwtSecretKey, {expiresIn: accessToken_expiresIn});
+            
+            // Format the token as a Bearer token
+            const bearerToken = `Bearer ${token}`;
+            
+            // Prepare the response data with additional details
+            let response = {
+                user_id: userExist.user_id,
+                username: userExist.username,
+                user_role: userExist.user_role,
+                token_type: userExist.token_type,
+                token: bearerToken,
+                expiresIn_in: accessToken_expires_in, 
             };
     
-            const accessToken = jwt.sign(data, jwtSecretKey, {expiresIn: accessToken_expiresIn});
-            const refreshToken = jwt.sign(data, jwtRefreshKey, {expiresIn: refreshToken_expiresIn}); 
-    
-            // Format the tokens as Bearer token
-            const bearer_accessToken = `${accessToken}`;
-            const bearer_refreshToken = `${refreshToken}`;
-    
-            // Get the last inserted login id from the database
-            const lastLogin = await Login.findOne({}, {}, { sort: { id: -1 } });
-            let nextId = 1;
+            //res.send(bearerToken);
+            // return res.json({ token: bearerToken });
+            return res.json(response);
         
-            if (lastLogin) {
-             nextId = lastLogin.id + 1;
-            }
-    
-            const login = new Login({
-                id: nextId,
-                email: email,
-                password: hashedPassword,
-                user_role: user_role,
-                login_time: Date.now(),
-            });
-    
-            // Save the login details
-            const loggedInUser = await login.save();
-    
-            let tokenObj = {
-                // logged_user: loggedInUser,
-                user_id: user_id,
-                user_role: user_role,
-                token_type: "Bearer",
-                access_token: bearer_accessToken,
-                // expires_in: 3600 / 60 + " min",
-                access_token_expires_in: accessToken_expires_in,
-                refresh_token: bearer_refreshToken,
-                refresh_token_expires_in: refreshToken_expires_in,
-            };
-            return tokenObj;
-        } catch (err) {
-            return res.status(400).send({ status: 400, message: err.message });
-        }
-    }
-);
+          } else if (!userAlreadyLogged) {
+                return res
+                    .status(400)
+                    .send({ status: 400, message: "User not logged in." });
+          } else {
+                return res
+                    .status(400)
+                    .send({ status: 400, message: "User not found." });
+          }
+    } catch (err) {
+        return res.status(402).send({ status: 402, message: err.message });
+    }  
+});
   
 // Refresh token
 router.post("/refresh", cors(), async (req, res) => {
@@ -130,4 +133,4 @@ try {
 }
 });
 
-module.exports = router;
+export default router;

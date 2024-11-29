@@ -193,6 +193,29 @@ router.post("/login", cors(), async (req, res) => {
   }
 });
 
+// Logout User
+router.delete("/logout", cors(), async (req, res) => {
+  try {
+
+    console.log(req.body);
+    const userAlreadyLogged = await Login.findOne({ email: req.body.email });
+
+    const loggesUser = await Login.findOne({ email: req.body.email });
+    if (loggesUser == null) {
+      return res.status(404).send({ status: 404, message: "User not found." });
+    }
+    let deletedUser = await Login.deleteOne(loggesUser);
+
+    return res.status(200).send({
+      status: 200,
+      message: "User logout successfully!",
+      data: deletedUser,
+    });
+  } catch (err) {
+    return res.status(400).send({ status: 400, message: err.message });
+  }
+});
+
 const generateToken = async (
     user_id,
     username,
