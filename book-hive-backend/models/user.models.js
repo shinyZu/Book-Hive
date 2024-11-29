@@ -43,7 +43,7 @@ const UserSchema = new Schema(
             message: "Invalid Contact Number!",
         },
       },
-    linkedDiscordId: { 
+    linked_discord_id: { 
         type: String
     },
   },
