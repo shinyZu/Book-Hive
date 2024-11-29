@@ -1,5 +1,5 @@
 const ReadingStatus = {
-    TO_READ: 'To Read',
+    WANT_TO_READ: 'Want To Read',
     READING: 'Reading',
     COMPLETED: 'Completed',
   };

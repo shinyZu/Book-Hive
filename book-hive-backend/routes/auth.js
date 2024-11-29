@@ -17,19 +17,13 @@ const router = express.Router();
 const accessToken_expiresIn = process.env.JWT_ACCESS_TOKEN_EXPIRE
 const refreshToken_expiresIn = process.env.JWT_REFRESH_TOKEN_EXPIRE;
 
-const accessToken_expires_in = "1800 seconds"
+// const accessToken_expires_in = "1800 seconds"
+const accessToken_expires_in = "24 hours"
 const refreshToken_expires_in = "24 hours"
 
 // Get all logged users
 router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
-    console.log("inside getAll -auth")
-    // try {
-    //   const loggedUsers = await Login.find();
-    //   return res.status(200).json({ status: 200, data: loggedUsers });
-    // } catch (error) {
-    //   return res.status(500).send({ status: 500, message: error });
-    // }
-
+    console.log("inside getAll: admin - auth")
     try {
       const loggedUsers = await Login.find();
       
@@ -57,11 +51,11 @@ router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
 
 // Sign Up & generate JWT token
 router.post("/signup", cors(), async (req, res) => {
-    const body = req.body;
-
-    console.log("inside signup - auth")
+  console.log("inside signup - auth")
   
-    try {
+  try {
+      const body = req.body;
+
       // Check if user already exists
       const emailExist = await User.findOne({ email: body.email });
       if (emailExist) {
@@ -153,6 +147,8 @@ router.post("/signup", cors(), async (req, res) => {
 
 // Login User & generate JWT token -  in use
 router.post("/login", cors(), async (req, res) => {
+  console.log("inside login - auth")
+
   try {
     console.log(req.body);
     const userExist = await User.findOne({ email: req.body.email });
@@ -223,8 +219,9 @@ router.post("/login", cors(), async (req, res) => {
 
 // Logout User
 router.delete("/logout", cors(), async (req, res) => {
-  try {
+  console.log("inside logout - auth")
 
+  try {
     console.log(req.body);
     const userAlreadyLogged = await Login.findOne({ email: req.body.email });
 

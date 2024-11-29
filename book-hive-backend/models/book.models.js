@@ -5,13 +5,14 @@ const { Schema } = mongoose;
 const BookSchema = new Schema(
   {
     book_id: { 
-        type: Number,
-        required: true,
-        unique: true
+      type: Number,
+      required: true,
+      unique: true
     },
     title: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
+      unique: true
     },
     author: {
         type: String,

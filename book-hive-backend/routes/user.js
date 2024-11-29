@@ -40,13 +40,9 @@ router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
 });
 
 // Search user by Id - Authorized only for Admin
-router.get(
-  "/search/admin/:user_id",
-  cors(),
-  authenticateAdminToken,
-  async (req, res) => {
+router.get( "/search/admin/:user_id", cors(), authenticateAdminToken, async (req, res) => {
+    console.log("inside search user by id: admin - books");
     try {
-
       const userFound = await User.findOne({
         user_id: req.params.user_id,
       });
@@ -68,17 +64,12 @@ router.get(
 );
 
 // Search user by Id - Authorized by relevant Reader
-router.get(
-  "/search/:user_id",
-  cors(),
-  authenticateReaderToken,
-  async (req, res) => {
+router.get("/search/:user_id", cors(), authenticateReaderToken, async (req, res) => {
+    console.log("inside search user by id: reader - books");
+
     try {
-
-      const verified = verifyToken(req.headers.authorization, res);
-
       const userFound = await User.findOne({
-          user_id: verified.user_id,
+          user_id: req.params.user_id,
       });
 
       if (!userFound) {
@@ -99,42 +90,84 @@ router.get(
 
 // Update user details  - only for Readers
 router.put("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
-  try {
-    const body = req.body;
-    const userExist = await User.findOne({ user_id: req.params.user_id });
+    console.log("inside update user by id: reader - books");
 
-    if (!userExist) {
-      return res.status(404).send({ status: 404, message: "User not found." });
+    try {
+        const body = req.body;
+        const userExist = await User.findOne({ user_id: req.params.user_id });
+
+        if (!userExist) {
+          return res.status(404).send({ status: 404, message: "User not found." });
+        }
+
+        if (req.email !== userExist.email) {
+          return res.status(403).send({ status: 403, message: "Access denied." });
+        }
+
+        // Update user fields
+        userExist.first_name = body.first_name;
+        userExist.last_name = body.last_name;
+        userExist.username = body.username;
+        // userExist.email = body.email;
+        // userExist.password = body.password;
+        userExist.contact_no = body.contact_no;
+        userExist.user_role = body.user_role;
+
+        const updatedUser = await userExist.save();
+
+        return res.send({
+          status: 200,
+          user: updatedUser,
+          message: "User details updated successfully!",
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send({ status: 400, message: err.message });
     }
+});
 
-    if (req.email !== userExist.email) {
-      return res.status(403).send({ status: 403, message: "Access denied." });
+// Partially update user details  - Reader
+router.patch("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
+    console.log("inside patch user by id: reader - user");
+
+    try {
+        const body = req.body;
+        const userExist = await User.findOne({ user_id: req.params.user_id });
+
+        if (!userExist) {
+          return res.status(404).send({ status: 404, message: "User not found." });
+        }
+
+        if (req.email !== userExist.email) {
+          return res.status(403).send({ status: 403, message: "Access denied." });
+        }
+    
+        // Convert Mongoose document to object
+        const userData = userExist.toObject();
+
+        // Update only the fields provided in the request body
+        Object.keys(body).forEach((key) => {
+            if (Object.hasOwnProperty.call(userData, key)) {
+                userExist[key] = body[key];
+            }
+        });
+    
+        const updatedUser = await userExist.save();
+    
+        return res.send({
+            status: 200,
+            book: updatedUser,
+            message: "User updated successfully!",
+        });
+    } catch (err) {
+      console.error(err);
+      return res.status(400).send({ status: 400, message: err.message });
     }
-
-    // Update user fields
-    userExist.first_name = body.first_name;
-    userExist.last_name = body.last_name;
-    userExist.username = body.username;
-    // userExist.email = body.email;
-    // userExist.password = body.password;
-    userExist.contact_no = body.contact_no;
-    userExist.user_role = body.user_role;
-
-    const updatedUser = await userExist.save();
-
-    return res.send({
-      status: 200,
-      user: updatedUser,
-      message: "User details updated successfully!",
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send({ status: 400, message: err.message });
-  }
 });
 
 // Delete user account - Authorized only for Readers to delete their own account
 router.delete("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
+  console.log("inside delete user by id: reader - books");
   try {
     const userExist = await User.findOne({
       user_id: req.params.user_id,

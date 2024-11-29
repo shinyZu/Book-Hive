@@ -16,7 +16,8 @@ dotenv.config();
 const accessToken_expiresIn = process.env.JWT_ACCESS_TOKEN_EXPIRE
 const refreshToken_expiresIn = process.env.JWT_REFRESH_TOKEN_EXPIRE;
 
-const accessToken_expires_in = "1800 seconds"
+// const accessToken_expires_in = "1800 seconds"
+const accessToken_expires_in = "24 hours"
 const refreshToken_expires_in = "24 hours"
 
 // Generate Token 

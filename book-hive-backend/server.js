@@ -6,6 +6,7 @@ import cors from "cors";
 import user from "./routes/user.js";
 import * as auth from "./routes/auth.js"
 import token from "./routes/token.js";
+import book from "./routes/book.js";
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ const baseURL = "/book-hive/api";
 app.use(`${baseURL}/users`, user);
 app.use(`${baseURL}/auth`, auth.router);
 app.use(`${baseURL}/jwt-token`, token);
+app.use(`${baseURL}/books`, book);
 
 app.get('/', (req, res) => {
     res.send('Hello, Express!');

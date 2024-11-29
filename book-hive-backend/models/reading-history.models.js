@@ -23,7 +23,7 @@ const ReadingHistorySchema = new Schema(
     status: { 
       type: String, 
       enum: Object.values(ReadingStatus), // Restrict to enum values
-      default: ReadingStatus.TO_READ,
+      default: ReadingStatus.WANT_TO_READ,
     },
     startDate: {
       type: Date,
