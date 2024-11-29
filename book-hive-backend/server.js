@@ -17,16 +17,16 @@ establishConnection;
 
 const PORT = process.env.PORT;
 
-const baseURL = "/book-hive/api/";
+const baseURL = "/book-hive/api";
 
-app.use(`${baseURL}users`, user);
-app.use(`${baseURL}auth`, auth);
+app.use(`${baseURL}/users`, user);
+app.use(`${baseURL}/auth`, auth);
 
 app.get('/', (req, res) => {
     res.send('Hello, Express!');
 });
 
-app.get(`${baseURL}/`, (req, res) => {
+app.get(`${baseURL}/hello`, (req, res) => {
     res.send("<h1>Hello Express!!!</h1>");
 });
 
@@ -34,6 +34,7 @@ app.listen(PORT, () => {
     console.log(`Express App listening on Port ${PORT}`);
 });
 
+export default app;
 
 /*
  .env

@@ -15,7 +15,6 @@ const router = express.Router();
 router.get("/getAll", cors(), async (req, res) => {
     console.log("inside getAll -auth")
     try {
-        console.log(req)
       const loggedUsers = await Login.find();
       return res.status(200).json({ status: 200, data: loggedUsers });
     } catch (error) {
@@ -36,14 +35,14 @@ router.post("/signup", cors(), async (req, res) => {
       if (emailExist) {
         return res
           .status(400)
-          .json({ status: 400, message: "Email already exists." });
+          .json({ status: 400, message: "A user with the same email address already exists." });
       }
   
       const contactExist = await User.findOne({ contact_no: body.contact_no });
       if (contactExist) {
         return res
           .status(400)
-          .send({ status: 400, message: "Contact number already exists." });
+          .send({ status: 400, message: "A user with the same contact number already exists." });
       }
   
       // Get the last inserted user_id from the database
@@ -73,7 +72,7 @@ router.post("/signup", cors(), async (req, res) => {
       console.log("======savedUser=======")
       console.log(savedUser)
   
-      if (savedUser) {
+      /* if (savedUser) {
         // send response after registering & login
         return res.status(201).send({
           status: 201,
@@ -81,9 +80,33 @@ router.post("/signup", cors(), async (req, res) => {
         });
       } else {
         return res.status(400).send({ status: 400, message: "Failed to login." });
+      } */
+
+      try {
+        if (savedUser) {
+          return res.status(201).send({status: 201, message: "User signed up successfully!"});
+
+        } else {
+          res.status(201).send({ status: 201, message: 'Failed to sign up!' });
+        }
+
+      } catch (err) {
+        if (err.name === 'ValidationError') {
+          res.status(400).send({ status: 400, message: err.message });
+
+        } else if (err.code === 11000) {
+          // Handle duplicate key errors
+          const duplicateField = Object.keys(err.keyPattern)[0];
+          const message = `A user with the same ${duplicateField} already exists.`;
+          res.status(400).send({ status: 400, message });
+          
+        } else {
+          res.status(500).send({ status: 500, message: 'Server error' });
+        }
       }
+      
     } catch (err) {
-      return res.status(400).send({statuus: 400, message: err.message});
+      return res.status(400).send({status: 400, message: err.message});
     }
 });
 

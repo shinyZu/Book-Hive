@@ -1,5 +1,7 @@
 // Initialize dotenv
-require('dotenv').config();
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const { Client, GatewayIntentBits } = require('discord.js');
 const axios = require('axios'); // To interact with your backend API

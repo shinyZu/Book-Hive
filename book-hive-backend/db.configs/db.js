@@ -1,24 +1,24 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
-dotenv.config();
+// Dynamically load the appropriate .env file based on NODE_ENV
+const env = `.env${process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ""}`;
+dotenv.config({ path: env });
+
+// Log the environment being used (optional, for debugging)
+console.log(`Using environment file: ${env}`);
 
 // Database URL to connect with
 const url = process.env.URL;
 
-// Create MongoDB Connection
-// const establishConnection = async () => {
-//   try {
-//     await mongoose.connect(url);
-//     console.log("Connected to MongoDB Atlas...!");
-//   } catch (error) {
-//     console.error("Error connecting to MongoDB:", error.message);
-//     process.exit(1); // Exit the process on failure
-//   }
-// };
+if (!url) {
+  throw new Error("Database URL not found in the environment variables!");
+}
 
+// Create MongoDB Connection
 const establishConnection = mongoose.connect(url, {
   useNewUrlParser: true,
+  useUnifiedTopology: true, // Ensures proper connection management
 });
 
 const conn = mongoose.connection;
