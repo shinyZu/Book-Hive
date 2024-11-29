@@ -22,7 +22,7 @@ const UserSchema = new Schema(
             validator: function (val) {
                 return /[A-z|0-9]{4,}@(gmail)(.com|.lk)/.test(val);
             },
-            message: (val) => "Invalid Email!",
+            message: "Invalid email address."
         },
     },
     password: {
@@ -42,7 +42,11 @@ const UserSchema = new Schema(
             },
             message: "Invalid Contact Number!",
         },
-      },
+    },
+    user_role: {
+        type: String,
+        required: true,
+    },
     linked_discord_id: { 
         type: String
     },

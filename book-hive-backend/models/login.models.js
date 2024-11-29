@@ -17,7 +17,7 @@ const LoginSchema = new Schema(
             validator: function (val) {
                 return /[A-z|0-9]{4,}@(gmail)(.com|.lk)/.test(val);
             },
-            message: (val) => "Invalid Email!",
+            message: "Invalid email address"
         },
     },
     password: {
@@ -27,13 +27,16 @@ const LoginSchema = new Schema(
         minLength: [8, "Password should be at least 8 characters"],
         maxlength: 1024,
     },
+    user_role: {
+        type: String,
+        required: true,
+    },
     login_time: { 
         type: Date,
         required: true,
     },
     logout_time: { 
         type: Date,
-        required: true,
     },
   },
   {

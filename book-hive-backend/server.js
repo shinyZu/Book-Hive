@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { establishConnection } from "./db.configs/db.js";
 
 import user from "./routes/user.js";
-import auth from "./routes/auth.js"
+import * as auth from "./routes/auth.js"
 
 const app = express();
 
@@ -20,7 +20,7 @@ const PORT = process.env.PORT;
 const baseURL = "/book-hive/api";
 
 app.use(`${baseURL}/users`, user);
-app.use(`${baseURL}/auth`, auth);
+app.use(`${baseURL}/auth`, auth.router);
 
 app.get('/', (req, res) => {
     res.send('Hello, Express!');
