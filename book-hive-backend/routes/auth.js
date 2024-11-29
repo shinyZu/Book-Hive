@@ -12,10 +12,10 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-const accessToken_expiresIn = '1800s'; //1800s = 30 mins
-const accessToken_expires_in = "1800 seconds"
+const accessToken_expiresIn = process.env.JWT_ACCESS_TOKEN_EXPIRE
+const refreshToken_expiresIn = process.env.JWT_REFRESH_TOKEN_EXPIRE;
 
-const refreshToken_expiresIn = '24h'; 
+const accessToken_expires_in = "1800 seconds"
 const refreshToken_expires_in = "24 hours"
 
 // Get all logged users
@@ -90,7 +90,7 @@ router.post("/signup", cors(), async (req, res) => {
       );
 
       console.log("=============== signup - tokenData in auth.js: ===============");
-      // console.log(tokenData);
+      console.log(tokenData);
 
       try {
         if (savedUser && tokenData) {
