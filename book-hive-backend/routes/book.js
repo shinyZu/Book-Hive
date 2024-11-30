@@ -131,7 +131,7 @@ router.put("/:book_id", cors(), authenticateAdminToken, async (req, res) => {
   
       return res.send({
         status: 200,
-        book: updatedBook,
+        data: updatedBook,
         message: "Book updated successfully!",
       });
     } catch (err) {
@@ -167,7 +167,7 @@ router.patch("/:book_id", cors(), authenticateAdminToken, async (req, res) => {
     
         return res.send({
             status: 200,
-            book: updatedBook,
+            data: updatedBook,
             message: "Book updated successfully!",
         });
     } catch (err) {
@@ -178,7 +178,7 @@ router.patch("/:book_id", cors(), authenticateAdminToken, async (req, res) => {
 
 // Delete book - Admin
 router.delete("/:book_id", cors(), authenticateAdminToken, async (req, res) => {
-    console.log("inside delete book by id: reader - books");
+    console.log("inside delete book by id: admin - books");
     try {
       const bookExist = await Book.findOne({
         book_id: req.params.book_id,

@@ -20,13 +20,15 @@ const ReviewSchema = new Schema(
         required: false,
     },
     user_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+        // type: Schema.Types.ObjectId,
+        // ref: 'User',
+        type: Number,
         required: true
     },
     book_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Book', 
+        // type: Schema.Types.ObjectId,
+        // ref: 'Book', 
+        type: Number,
         required: true
     },
   },
