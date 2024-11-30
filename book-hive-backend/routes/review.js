@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import Review from "../models/review.models.js"
+import Book from "../models/book.models.js"
 
 import { refreshToken, verifyToken, authenticateAdminToken, authenticateReaderToken } from "../middleware/auth.js";
 
@@ -108,6 +109,69 @@ router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
       return res.status(400).send({ status: 400, message: err.message });
     }
   }
+);
+
+// Search review by book_id - Reader
+router.get("/book/:book_id", cors(), authenticateReaderToken, async (req, res) => {
+  console.log("inside get reviews for a book  - reviews");
+
+  try {
+
+    const bookExist = await Book.findOne({ book_id: req.params.book_id });
+
+    if (bookExist) {
+      const pipeline = [
+          {
+            $match: {
+              book_id: Number(bookExist.book_id),
+            }
+          },
+          {
+              $lookup: {
+                  from: "users", // The collection name for the User model
+                  localField: "user_id", // The field in the Review collection
+                  foreignField: "user_id", // The corresponding field in the User collection
+                  as: "User", // The field to hold the joined user data
+              },
+          },
+          {
+              $lookup: {
+                  from: "books",
+                  localField: "book_id",
+                  foreignField: "book_id", 
+                  as: "Book",
+              },
+          },
+          {
+              $unwind: {
+                  path: "$User", // Unwind the User array to flatten the data
+                  preserveNullAndEmptyArrays: true, // Include reviews without user data
+              },
+          },
+      ]
+
+      const reviewsFound = await Review.aggregate(pipeline); 
+      
+      if (!reviewsFound) {
+        return res
+          .status(404)
+          .send({ status: 404, message: "Reviews not found." });
+      }
+  
+      return res.send({
+          status: 200,
+          message: "Reviews for book fetched successfully.",
+          data: reviewsFound,
+      });
+    } else {
+      return res
+          .status(404)
+          .send({ status: 404, message: "Book not found." });
+    }
+  } catch (err) {
+    return res.status(400).send({ status: 400, message: err.message });
+  }
+}
 );
 
 // Save review - Reader

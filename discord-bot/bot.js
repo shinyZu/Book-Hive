@@ -239,7 +239,7 @@ const commands = [
             name: 'genre',
             description: 'The genre of the book of which the review should be listed',
             type: 3, // String
-            required: true,
+            required: false,
         },
       ],
     },
@@ -454,6 +454,38 @@ client.on('interactionCreate', async (interaction) => {
             } else {
                 const bookList = searchResult.map((book) => `**Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
                 await interaction.reply(`Search results:\n${bookList}`);
+            }
+
+        } else if (commandName === 'listreviews') {
+            const title = options.getString('title');
+            const author = options.getString('author');
+            const genre = options.getString('genre');
+
+            // Get book data from Book collection
+            const booksResponse = await axios.get(`${apiBaseUrl}/books`, { 
+                params: { title, author, genre },
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const searchResult = booksResponse.data.data;
+
+            console.log("\n");
+            console.log("===========searchResult========");
+            console.log(searchResult);
+
+            const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${searchResult[0].book_id}`, { 
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const reviewList = reviewsResponse.data.data;
+
+            console.log("\n");
+            console.log("===========reviewList========");
+            console.log(reviewList);
+    
+            if (reviewList.length > 0) {
+                const reviews = reviewList.map((rev) => `**User:** ${rev.User.first_name} ${rev.User.last_name},\n**Rating:** ${rev.rating},\n**Review:** ${rev.review_text}`).join('\n\n');
+                await interaction.reply(`Reviews for the book titled "**${title}**":\n\n${reviews}`);
+            } else {
+                await interaction.reply('No reviews found for this book.');
             }
 
         } else if (commandName === 'searchbooks') {
