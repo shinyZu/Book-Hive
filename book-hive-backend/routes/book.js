@@ -91,6 +91,7 @@ router.post("/", cors(), authenticateAdminToken, async (req, res) => {
         const newBook = new Book({
             book_id: nextBookId,
             title: body.title,
+            description: body.description,
             author: body.author,
             genre: body.genre,
             published_year: body.published_year,
@@ -123,6 +124,7 @@ router.put("/:book_id", cors(), authenticateAdminToken, async (req, res) => {
   
       // Update book fields
       bookExist.title = body.title;
+      bookExist.description = body.description;
       bookExist.author = body.author;
       bookExist.genre = body.genre;
       bookExist.published_year = body.published_year;
