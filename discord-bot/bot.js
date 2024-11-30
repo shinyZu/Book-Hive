@@ -175,30 +175,30 @@ const commands = [
       name: 'addreview',
       description: 'Add a review for a book',
       options: [
+        {
+          name: 'book_id',
+          description: 'The ID of the book to review',
+          type: 3, // Integer
+          required: true,
+        },
         // {
-        //   name: 'book_id',
-        //   description: 'The ID of the book to review',
-        //   type: 3, // String
-        //   required: true,
+        //     name: 'title',
+        //     description: 'The title of the book to review',
+        //     type: 3, // String
+        //     required: true,
         // },
-        {
-            name: 'title',
-            description: 'The title of the book to review',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'author',
-            description: 'The author of the book to review',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'genre',
-            description: 'The genre of the book to review',
-            type: 3, // String
-            required: true,
-        },
+        // {
+        //     name: 'author',
+        //     description: 'The author of the book to review',
+        //     type: 3, // String
+        //     required: true,
+        // },
+        // {
+        //     name: 'genre',
+        //     description: 'The genre of the book to review',
+        //     type: 3, // String
+        //     required: false,
+        // },
         {
           name: 'review_text',
           description: 'Your review',
@@ -217,30 +217,30 @@ const commands = [
       name: 'listreviews',
       description: 'List all reviews for a book',
       options: [
+        {
+          name: 'book_id',
+          description: 'The ID of the book to fetch reviews for',
+          type: 3, // String,
+          required: true,
+        },
         // {
-        //   name: 'book_id',
-        //   description: 'The ID of the book to fetch reviews for',
-        //   type: 3, // String,
-        //   required: true,
+        //     name: 'title',
+        //     description: 'The title of the book of which the review should be listed',
+        //     type: 3, // String
+        //     required: true,
         // },
-        {
-            name: 'title',
-            description: 'The title of the book of which the review should be listed',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'author',
-            description: 'The author of the book of which the review should be listed',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'genre',
-            description: 'The genre of the book of which the review should be listed',
-            type: 3, // String
-            required: false,
-        },
+        // {
+        //     name: 'author',
+        //     description: 'The author of the book of which the review should be listed',
+        //     type: 3, // String
+        //     required: true,
+        // },
+        // {
+        //     name: 'genre',
+        //     description: 'The genre of the book of which the review should be listed',
+        //     type: 3, // String
+        //     required: false,
+        // },
       ],
     },
     {
@@ -452,18 +452,41 @@ client.on('interactionCreate', async (interaction) => {
             if (searchResult.length === 0) {
                 await interaction.reply('No books found in your collection.');
             } else {
-                const bookList = searchResult.map((book) => `**Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
+                const bookList = searchResult.map((book) => `**Book ID:** ${book.book_id}, **Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
                 await interaction.reply(`Search results:\n${bookList}`);
             }
 
-        } else if (commandName === 'listreviews') {
-            const title = options.getString('title');
-            const author = options.getString('author');
-            const genre = options.getString('genre');
+        } else if (commandName === 'addreview') {
+            const book_id = options.getString('book_id');
+            const review_text = options.getString('review_text');
+            const rating = options.getInteger('rating');
 
             // Get book data from Book collection
-            const booksResponse = await axios.get(`${apiBaseUrl}/books`, { 
-                params: { title, author, genre },
+            const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const searchResult = booksResponse.data.data;
+    
+            const savedReview = await axios.post(`${apiBaseUrl}/reviews`, { 
+                book_id: book_id,
+                review_text: review_text,
+                rating: rating,
+            },{
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            });
+            await interaction.reply(`Review added for the book titled "**${searchResult.title}**"!`); 
+
+        } else if (commandName === 'listreviews') {
+            const book_id = options.getString('book_id');
+            // const title = options.getString('title');
+            // const author = options.getString('author');
+            // const genre = options.getString('genre');
+
+            // Get book data from Book collection
+            const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
+                // params: { title, author, genre },
                 headers: { 'Authorization': `Bearer ${jwtToken}` } 
             });
             const searchResult = booksResponse.data.data;
@@ -472,7 +495,8 @@ client.on('interactionCreate', async (interaction) => {
             console.log("===========searchResult========");
             console.log(searchResult);
 
-            const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${searchResult[0].book_id}`, { 
+            // const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${searchResult[0].book_id}`, { 
+            const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${book_id}`, { 
                 headers: { 'Authorization': `Bearer ${jwtToken}` } 
             });
             const reviewList = reviewsResponse.data.data;
@@ -482,10 +506,10 @@ client.on('interactionCreate', async (interaction) => {
             console.log(reviewList);
     
             if (reviewList.length > 0) {
-                const reviews = reviewList.map((rev) => `**User:** ${rev.User.first_name} ${rev.User.last_name},\n**Rating:** ${rev.rating},\n**Review:** ${rev.review_text}`).join('\n\n');
-                await interaction.reply(`Reviews for the book titled "**${title}**":\n\n${reviews}`);
+                const reviews = reviewList.map((rev) => `**User:** ${rev.User.first_name} ${rev.User.last_name},\n**Rating:** ${rev.rating}/5,\n**Review:** ${rev.review_text}`).join('\n\n');
+                await interaction.reply(`Reviews for the book titled "**${searchResult.title}**":\n\n${reviews}`);
             } else {
-                await interaction.reply('No reviews found for this book.');
+                await interaction.reply(`No reviews found for the book titled "**${searchResult.title}**".`);
             }
 
         } else if (commandName === 'searchbooks') {
@@ -507,7 +531,7 @@ client.on('interactionCreate', async (interaction) => {
     
             // if response with books
             if (searchResult.length > 0 ) {
-                const bookList = searchResult.map((book) => `**Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
+                const bookList = searchResult.map((book) => `**Book ID:** ${book.book_id}, **Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
                 await interaction.reply(`Search results:\n${bookList}`);
             } else {
                 await interaction.reply('No books found.');
