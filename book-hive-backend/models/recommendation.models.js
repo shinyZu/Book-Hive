@@ -8,15 +8,17 @@ const RecommendationSchema = new Schema(
         type: Number,
         required: true,
         unique: true
-    },
-    user_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', 
+      },
+      user_id: {
+        // type: Schema.Types.ObjectId,
+        // ref: 'User', 
+        type: Number,
         required: true
-    },
-    book_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Book', 
+      },
+      book_id: {
+        // type: Schema.Types.ObjectId,
+        // ref: 'Book', 
+        type: Number,
         required: true
     },
     generated_at: {

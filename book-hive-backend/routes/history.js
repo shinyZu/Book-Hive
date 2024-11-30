@@ -12,13 +12,24 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-// Get all reading histories - Readers
+// Get all reading histories - Admin
 router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll: admin - reading history")
     try {
         // const historyList = await ReadingHistory.find()
+
+        const { user_id } = req.query;
+
+        // Build the search criteria based on provided query parameters
+        const searchCriteria = {};
+        if (user_id) {
+            searchCriteria.user_id = Number(user_id); 
+        }
         
         const historyList = await ReadingHistory.aggregate([
+            {
+                $match: Object.keys(searchCriteria).length ? searchCriteria : {},
+            },
             {
                 $lookup: {
                     from: "users", // The collection name for the User model
@@ -71,7 +82,7 @@ router.get("/", cors(), authenticateAdminToken, async (req, res) => {
       }
 });
 
-// Search history by Id - Readers
+// Search history by history_id - Readers
 router.get("/:history_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside search reading history by id: reader - reading history");
 
