@@ -14,7 +14,7 @@ chai.use(chaiHttp);
 
 const baseURL = "/book-hive/api"; 
 
-describe('GET /users/getAll', () => {
+describe('GET /users', () => {
 
     let adminToken;
     let hashedPassword;
@@ -53,7 +53,7 @@ describe('GET /users/getAll', () => {
 
     it('should get all users only by admins', (done) => {
         request.execute(server)
-            .get(`${baseURL}/users/getAll`)
+            .get(`${baseURL}/users`)
             .set('Authorization', `Bearer ${adminToken}`)
             .end((err, res) => {
                 if (err) {

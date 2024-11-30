@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ReadingStatus from '../enums/reading-status.enum';
+import ReadingStatus from '../enums/reading-status.enum.js';
 
 const { Schema } = mongoose;
 
@@ -9,15 +9,17 @@ const ReadingHistorySchema = new Schema(
         type: Number,
         required: true,
         unique: true
-    },
-    user_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', 
+      },
+      user_id: {
+        // type: Schema.Types.ObjectId,
+        // ref: 'User', 
+        type: Number,
         required: true
-    },
-    book_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Book', 
+      },
+      book_id: {
+        // type: Schema.Types.ObjectId,
+        // ref: 'Book', 
+        type: Number,
         required: true
     },
     status: { 
@@ -25,14 +27,14 @@ const ReadingHistorySchema = new Schema(
       enum: Object.values(ReadingStatus), // Restrict to enum values
       default: ReadingStatus.WANT_TO_READ,
     },
-    startDate: {
-      type: Date,
-      required: false
-    },
-    endDate: {
-      type: Date,
-      required: false
-    },
+    // startDate: {
+    //   type: Date,
+    //   required: false
+    // },
+    // endDate: {
+    //   type: Date,
+    //   required: false
+    // },
   },
   {
     timestamps: true,

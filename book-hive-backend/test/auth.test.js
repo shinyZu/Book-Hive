@@ -92,7 +92,6 @@ describe('POST /auth/signup', () => {
                 if (err) {
                     done(err);
                 } else {
-
                     // Assert that the response status is 201
                     expect(res).to.have.status(201);
 

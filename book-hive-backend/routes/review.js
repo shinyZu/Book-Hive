@@ -11,17 +11,16 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-// Get all reviews - Readers
+// Get all reviews - Reader
 router.get("/", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside getAll - reviews")
     try {
-        // const reviewList = await Review.find()
-        // res.status(200).json(reviewList)
+        const reviewList = await Review.find()
 
         // Fetch reviews and populate the user_id and book_id fields
-        const reviewList = await Review.find()
-            .populate('user_id', '-password') // Populate user_id and exclude the password field
-            .populate('book_id'); 
+        // const reviewList = await Review.find()
+        //     .populate('user_id', '-password') // Populate user_id and exclude the password field
+        //     .populate('book_id'); 
 
         if (reviewList.length === 0) {
             return res.status(200).json({ 
@@ -45,7 +44,7 @@ router.get("/", cors(), authenticateReaderToken, async (req, res) => {
       }
 });
 
-// Search review by Id - Readers
+// Search review by Id - Reader
 router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside search review by id - reviews");
 
@@ -70,19 +69,21 @@ router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
   }
 );
 
-// Save review 
+// Save review - Reader
 router.post("/", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside save review - review")
     
     try {
+        const verified = verifyToken(req.headers.authorization, res);
+
         const body = req.body;
     
         // Create a new Review instance
         const newReview = new Review({
-            review_id: generateNextReviewId(),
+            review_id: await generateNextReviewId(),
             rating: body.rating,
             review_text: body.review_text,
-            user_id: body.user_id,
+            user_id: verified.user_id,
             book_id: body.book_id,
         });
     
@@ -104,8 +105,10 @@ router.put("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside update review by id: reader - reviews");
   
     try {
+        const verified = verifyToken(req.headers.authorization, res);
+
         const body = req.body;
-        const reviewExist = await Review.findOne({ review_id: req.params.review_id });
+        const reviewExist = await Review.findOne({ review_id: req.params.review_id, user_id: verified.user_id, book_id: body.book_id });
     
         if (!reviewExist) {
             return res.status(404).send({ status: 404, message: "Review not found." });
@@ -114,7 +117,7 @@ router.put("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
         // Update review fields
         reviewExist.rating = body.rating;
         reviewExist.review_text = body.review_text;
-        reviewExist.user_id = body.user_id;
+        reviewExist.user_id = verified.user_id;
         reviewExist.book_id = body.book_id;
     
         const updatedReview = await reviewExist.save();
@@ -130,13 +133,15 @@ router.put("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     }
 });
 
-// Partially update review details  - Reader
+// Partially update review details/ update Rating  - Reader
 router.patch("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside patch review by id: reader - reviews");
   
     try {
+        const verified = verifyToken(req.headers.authorization, res); 
+        
         const body = req.body;
-        const reviewExist = await Review.findOne({ review_id: req.params.review_id });
+        const reviewExist = await Review.findOne({ review_id: req.params.review_id, user_id: verified.user_id, book_id: body.book_id  });
     
         if (!reviewExist) {
             return res.status(404).send({ status: 404, message: "Review not found." });
@@ -153,11 +158,11 @@ router.patch("/:review_id", cors(), authenticateReaderToken, async (req, res) =>
             }
         });
     
-        const updatedBook = await reviewExist.save();
+        const updatedReview = await reviewExist.save();
     
         return res.send({
             status: 200,
-            data: updatedBook,
+            data: updatedReview,
             message: "Review updated successfully!",
         });
     } catch (err) {
@@ -166,12 +171,15 @@ router.patch("/:review_id", cors(), authenticateReaderToken, async (req, res) =>
     }
 });
 
-// Delete review - Admin
+// Delete review - Reader
 router.delete("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside delete review by id: reader - reviews");
     try {
+      const verified = verifyToken(req.headers.authorization, res);
+
       const reviewExist = await Review.findOne({
         review_id: req.params.review_id,
+        user_id: verified.user_id,
       });
 
       if (!reviewExist) {
@@ -179,12 +187,12 @@ router.delete("/:review_id", cors(), authenticateReaderToken, async (req, res) =
           .status(404)
           .send({ status: 404, message: "Review not found." });
       }
-      let deletedBook = await Review.deleteOne(reviewExist);
+      let deletedReview = await Review.deleteOne(reviewExist);
 
       return res.send({
         status: 200,
         message: "Review deleted successfully!",
-        data: deletedBook,
+        data: deletedReview,
       });
     } catch (err) {
       return res.status(400).send({ statttus: 400, message: err.message });
@@ -199,15 +207,15 @@ const generateNextReviewId = async () => {
         { sort: { review_id: -1 } }
       );
       let nextId = 1;
-  
+
       if (lastId) {
         nextId = lastId.review_id + 1;
       }
-  
+
       return nextId;
     } catch (error) {
       res.status(500).send({status: 500, message: error});
     }
-  }
+}
 
 export default router;

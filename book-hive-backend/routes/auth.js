@@ -71,21 +71,13 @@ router.post("/signup", cors(), async (req, res) => {
           .send({ status: 400, message: "A user with the same contact number already exists." });
       }
   
-      // Get the last inserted user_id from the database
-      const lastUser = await User.findOne({}, {}, { sort: { user_id: -1 } });
-      let nextUserId = 1;
-  
-      if (lastUser) {
-        nextUserId = lastUser.user_id + 1;
-      }
-  
       // Hash the password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(body.password, salt);
   
       // Create a new user instance
       const newUser = new User({
-          user_id: nextUserId,
+          user_id: await generateNextUserId(),
           first_name: body.first_name,
           last_name: body.last_name,
           username: body.username,
@@ -103,7 +95,7 @@ router.post("/signup", cors(), async (req, res) => {
 
       // Call login() in login router
       let tokenData = await generateToken(
-          nextUserId,
+          await generateNextUserId(),
           body.username,
           body.email,
           hashedPassword,
@@ -312,5 +304,25 @@ const generateToken = async (
         return res.status(400).send({ status: 400, message: err.message });
     }
 };
+
+const generateNextUserId = async () => {
+  try {
+    const lastId = await User.findOne(
+      {},
+      {},
+      { sort: { user_id: -1 } }
+    );
+    let nextId = 1;
+
+    if (lastId) {
+      nextId = lastId.user_id + 1;
+    }
+
+    return nextId;
+  } catch (error) {
+    res.status(500).send({status: 500, message: error});
+  }
+}
+
 
 export { generateToken, router };

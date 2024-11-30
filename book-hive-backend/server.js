@@ -8,6 +8,7 @@ import * as auth from "./routes/auth.js"
 import token from "./routes/token.js";
 import book from "./routes/book.js";
 import review from "./routes/review.js";
+import history from "./routes/history.js";
 
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.use(`${baseURL}/auth`, auth.router);
 app.use(`${baseURL}/jwt-token`, token);
 app.use(`${baseURL}/books`, book);
 app.use(`${baseURL}/reviews`, review);
+app.use(`${baseURL}/history`, history);
 
 app.get('/', (req, res) => {
     res.send('Hello, Express!');

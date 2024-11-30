@@ -12,7 +12,7 @@ const app = express();
 const router = express.Router();
 
 // Get all users
-router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
+router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll - users")
     try {
         const users = await User.find();
