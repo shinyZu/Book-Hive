@@ -11,11 +11,35 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-// Get all books - Admin
-router.get("/", cors(), authenticateAdminToken, async (req, res) => {
+// Get all books - Readers
+// Search book by title, author, genre, published_year - Readers
+router.get("/", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside getAll - books")
     try {
-        const bookList = await Book.find();
+
+        const { title, author, genre, published_year } = req.query;
+
+        // Build the search criteria based on provided query parameters
+        const searchCriteria = {};
+        if (title) {
+            searchCriteria.title = { $regex: title, $options: "i" }; // Case-insensitive partial search
+        }
+        if (author) {
+            searchCriteria.author = { $regex: author, $options: "i" }; 
+        }
+        if (genre) {
+            searchCriteria.genre = { $regex: genre, $options: "i" };
+        }
+        if (published_year) {
+            searchCriteria.published_year = Number(published_year); // Ensure it's a number
+        }
+
+        console.log("searchCriteria: " + searchCriteria);
+
+        // Find books matching the search criteria, or return all books if no criteria are provided
+        const bookList = await Book.find(
+            Object.keys(searchCriteria).length ? searchCriteria : {}
+        );
         
         if (bookList.length === 0) {
           return res.status(200).json({ 
@@ -27,7 +51,7 @@ router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     
         return res.status(200).json({ 
           status: 200, 
-          message: "Books retrieved successfully.", 
+          message: "Books fetched successfully.", 
           data: bookList 
         });
       } catch (error) {
