@@ -2,11 +2,16 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import { Client, GatewayIntentBits, REST, Routes } from 'discord.js';
 import axios from 'axios';
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
 // Fetch setup
 global.fetch = fetch;
+
+
+console.log('-----------Loaded-------------');
+
 
 // Discord bot token
 const token = process.env.BOT_TOKEN;
@@ -20,9 +25,8 @@ const clientId = process.env.CLIENT_ID;
 // JWT AUTH TOKEN - TODO
 const jwtToken = process.env.JWT_TOKEN; // of user_id = 2 | David
 
-// Id of the user as in the system
-const system_user_id = process.env.SYSTEM_USER_ID;
-
+// JWT secret key
+const jwtSecret = process.env.JWT_SECRET_KEY;
 
 // Create the Discord client
 const client = new Client({
@@ -201,14 +205,48 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+console.log('-----------Before Interactions Start-------------');
+
 // Event: Handle slash commands
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
-  
+
     const { commandName, options } = interaction;
     const userDiscordId = interaction.user.id;
 
     console.log("interaction.user.id: "+ userDiscordId); // 756432766824087654
+
+    // Check if the access token given from the Book Hive app is expired or not
+    const isTokenExpired = checkIfJWTTokenIsExpired();
+
+    console.log('\n');
+    console.log("========isTokenExpired=======");
+    console.log(isTokenExpired);
+
+    // If expired alert the user to re-login from the Book Hive web app
+    if (isTokenExpired) {
+        await interaction.reply('Your access token has been expired. Please try to login again from  the Book Hive web app.');
+        return;
+    }
+
+    const verifiedToken = jwt.verify(jwtToken, jwtSecret);
+    console.log("verifiedToken---", verifiedToken)
+
+    // Id of the user as in the system
+    const system_user_id = verifiedToken.user_id;
+    
+    // Save user's discord id to the database - linked_discord_id
+    const updatedUser = await axios.patch(`${apiBaseUrl}/users/${system_user_id}`, {
+        linked_discord_id: userDiscordId,
+    },{
+        headers: {
+            Authorization: `Bearer ${jwtToken}`,
+        },
+    });
+
+    console.log("\n");
+    console.log("===========updatedUser========");
+    console.log(updatedUser);
   
     try {
         if (commandName === 'addbook') {
@@ -522,7 +560,29 @@ client.on('interactionCreate', async (interaction) => {
         console.error(error);
         await interaction.reply('An error occurred while processing your request.');
     }
-  });
+});
+
+
+const checkIfJWTTokenIsExpired = () => {
+    try {
+        // Verify the token
+        jwt.verify(jwtToken, jwtSecret);
+
+        console.log('-----------JWT token is valid.--------------');
+
+        return false; // Not expired
+
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            console.log('----------JWT token is expired.-------------');
+            return true; // Expired
+
+        } else {
+            console.error('Error verifying token:', error.message);
+            return true; // Invalid or other issues
+        }
+    }
+}
 
 // Log the bot in
 client.login(token);

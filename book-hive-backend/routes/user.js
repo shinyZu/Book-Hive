@@ -205,7 +205,7 @@ router.put("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
 
         return res.send({
           status: 200,
-          user: updatedUser,
+          data: updatedUser,
           message: "User details updated successfully!",
         });
     } catch (err) {
@@ -219,8 +219,10 @@ router.patch("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside patch user by id: reader - user");
 
     try {
+        const verified = verifyToken(req.headers.authorization, res);
+
         const body = req.body;
-        const userExist = await User.findOne({ user_id: req.params.user_id });
+        const userExist = await User.findOne({ user_id: verified.user_id });
 
         if (!userExist) {
           return res.status(404).send({ status: 404, message: "User not found." });
@@ -244,7 +246,7 @@ router.patch("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
     
         return res.send({
             status: 200,
-            book: updatedUser,
+            data: updatedUser,
             message: "User updated successfully!",
         });
     } catch (err) {
