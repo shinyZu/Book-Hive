@@ -67,18 +67,22 @@ const commands = [
     },
     {
       name: 'listbooks',
+      description: 'List all books in the database',
+    },
+    {
+      name: 'listlibrary',
       description: 'List all books in the library',
     },
     {
       name: 'editbook', // should only allow for admins
       description: 'Edit an existing book in the library',
       options: [
-        // {
-        //   name: 'book_id',
-        //   description: 'The ID of the book to edit',
-        //   type: 3, // String
-        //   required: true,
-        // },
+        {
+          name: 'book_id',
+          description: 'The ID of the book to edit',
+          type: 3, // String
+          required: true,
+        },
         {
           name: 'title',
           description: 'The new title of the book',
@@ -317,7 +321,7 @@ client.on('interactionCreate', async (interaction) => {
             console.log("\n");
             console.log("Book ID: ", bookId);
 
-            // Check if the book is already in the user's reading history
+            // Get all books in user's reading history/library
             const historyResponse = await axios.get(`${apiBaseUrl}/history/user/library`, {
                 headers: {
                     Authorization: `Bearer ${jwtToken}`,    
@@ -386,6 +390,7 @@ client.on('interactionCreate', async (interaction) => {
             } 
 
         } else if (commandName === 'listbooks') {
+
             const response = await axios.get(`${apiBaseUrl}/books`, { 
                 headers: { 'Authorization': `Bearer ${jwtToken}` } 
             });
@@ -401,6 +406,28 @@ client.on('interactionCreate', async (interaction) => {
                 const bookList = searchResult.map((book) => `**Book ID:** ${book.book_id}, **Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
                 await interaction.reply(`Search results:\n${bookList}`);
             }
+
+        } else if (commandName === 'listlibrary') {
+            // Get all books in user's reading history/library
+            const historyResponse = await axios.get(`${apiBaseUrl}/history/user/library`, {
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,    
+                },
+            });
+
+            const searchResult = historyResponse.data.data;
+
+            console.log("\n");
+            console.log("===========searchResult========");
+            console.log(searchResult);
+    
+            if (searchResult.length === 0) {
+                await interaction.reply('No books found in your librray.');
+            } else {
+                const libraryList = searchResult.map((history) => `**Book ID:** ${history.book_id}, **Title:** ${history.Book.title}, **Author:** ${history.Book.author}, **Genre:** ${history.Book.genre}, **Pulished Year:** ${history.Book.published_year}`).join('\n');
+                await interaction.reply(`Search results:\n${libraryList}`);
+            }
+
 
         } else if (commandName === 'addreview') {
             const book_id = options.getString('book_id');
