@@ -128,7 +128,66 @@ router.get("/:history_id", cors(), authenticateReaderToken, async (req, res) => 
 
         const historyFound = await ReadingHistory.aggregate(pipeline);
 
-        
+        if (!historyFound) {
+            return res
+            .status(404)
+            .send({ status: 404, message: "Reading history not found." });
+        }
+
+        return res.send({
+            status: 200,
+            data: historyFound,
+        });
+        } catch (err) {
+        return res.status(400).send({ status: 400, message: err.message });
+        }
+  }
+);
+
+// Search reading history of user by user_id - Readers
+router.get("/user/library", cors(), authenticateReaderToken, async (req, res) => {
+    console.log("inside search reading history by user: reader - reading history");
+
+    try {
+        const verified = verifyToken(req.headers.authorization, res);
+
+        const pipeline = [
+            {
+              $match: {
+                user_id: Number(verified.user_id),
+              }
+            },
+            {
+                $lookup: {
+                    from: "users", // The collection name for the User model
+                    localField: "user_id", // The field in the ReadingHistory collection
+                    foreignField: "user_id", // The corresponding field in the User collection
+                    as: "User", // The field to hold the joined user data
+                },
+            },
+            {
+                $unwind: {
+                    path: "$User", // Unwind the User array to flatten the data
+                    preserveNullAndEmptyArrays: true, // Include reviews without user data
+                },
+            },
+            {
+                $lookup: {
+                    from: "books", 
+                    localField: "book_id", 
+                    foreignField: "book_id", 
+                    as: "Book", 
+                },
+            },
+            {
+                $unwind: {
+                    path: "$Book", 
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+        ]
+
+        const historyFound = await ReadingHistory.aggregate(pipeline);
 
         if (!historyFound) {
             return res

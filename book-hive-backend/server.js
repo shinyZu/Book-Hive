@@ -24,7 +24,7 @@ establishConnection;
 
 const PORT = process.env.PORT;
 
-const baseURL = "/book-hive/api";
+const baseURL = process.env.BASE_URL;
 
 app.use(`${baseURL}/users`, user);
 app.use(`${baseURL}/auth`, auth.router);
