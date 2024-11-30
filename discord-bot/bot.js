@@ -74,68 +74,14 @@ const commands = [
       description: 'List all books in the library',
     },
     {
-      name: 'editbook', // should only allow for admins
-      description: 'Edit an existing book in the library',
-      options: [
-        {
-          name: 'book_id',
-          description: 'The ID of the book to edit',
-          type: 3, // String
-          required: true,
-        },
-        {
-          name: 'title',
-          description: 'The new title of the book',
-          type: 3, // String
-          required: true,
-        },
-        {
-            name: 'author',
-            description: 'The new author of the book',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'genre',
-            description: 'The new genre of the book',
-            type: 3, // String
-            required: true,
-        },
-        {
-          name: 'description',
-          description: 'The new description of the book',
-          type: 3, // String
-          required: true,
-        },
-      ],
-    },
-    {
-        name: 'updatebookstatus', 
+        name: 'editbook', 
         description: 'Update the reading status of a book in the library',
         options: [
-          // {
-          //   name: 'book_id',
-          //   description: 'The ID of the book to edit',
-          //   type: 3, // String
-          //   required: true,
-          // },
           {
-            name: 'title',
-            description: 'The title of the book of which the status should be updated',
+            name: 'book_id',
+            description: 'The id of the book in the library of which reading status should be updated',
             type: 3, // String
             required: true,
-          },
-          {
-              name: 'author',
-              description: 'The author of the book of which the status should be updated',
-              type: 3, // String
-              required: true,
-          },
-          {
-              name: 'genre',
-              description: 'The genre of the book of which the status should be updated',
-              type: 3, // String
-              required: true,
           },
           {
             name: 'status',
@@ -422,12 +368,59 @@ client.on('interactionCreate', async (interaction) => {
             console.log(searchResult);
     
             if (searchResult.length === 0) {
-                await interaction.reply('No books found in your librray.');
+                await interaction.reply('No books found in your library.');
             } else {
-                const libraryList = searchResult.map((history) => `**Book ID:** ${history.book_id}, **Title:** ${history.Book.title}, **Author:** ${history.Book.author}, **Genre:** ${history.Book.genre}, **Pulished Year:** ${history.Book.published_year}`).join('\n');
+                const libraryList = searchResult.map((history) => `**Book ID:** ${history.book_id}, **Title:** ${history.Book.title}, **Author:** ${history.Book.author}, **Genre:** ${history.Book.genre}, **Pulished Year:** ${history.Book.published_year}, **Reading Status:** ${history.status}`).join('\n');
                 await interaction.reply(`Search results:\n${libraryList}`);
             }
 
+
+        } else if (commandName === 'editbook') {
+            const book_id = options.getString('book_id');
+            const status = options.getString('status');
+
+            // Check if the book exists in the user's library
+            const historyExist = await axios.get(`${apiBaseUrl}/history`, {
+                params: { book_id },
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
+                },
+            });
+
+            console.log('\n');
+            console.log("======historyExist=======");
+            console.log(historyExist);
+
+            const historyData = historyExist.data.data;
+    
+            // Update reading status
+            const response = await axios.patch(`${apiBaseUrl}/history/${historyData[0].history_id}`, { 
+                    status: status,
+                },{
+                    headers: {
+                        Authorization: `Bearer ${jwtToken}`,    
+                },
+            });
+
+            if (response.status === 200 ) {
+                // Get book data from Book collection
+                const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
+                    headers: { 'Authorization': `Bearer ${jwtToken}` } 
+                });
+
+                const searchResult = booksResponse.data.data;
+                
+                await interaction.reply(`Reading status of the book titled **${searchResult.title}** was updated successfully to "**${status}**"`);
+
+            } else {
+                await interaction.reply(`Failed to update redaing status of book **${searchResult.title}**.`);
+            }
+
+
+        /*} else if (commandName === 'deletebook') {
+            const id = options.getString('id');
+            const response = await axios.delete(`${apiBaseUrl}/books/${id}`);
+            await interaction.reply(`Book ID ${id} deleted successfully!`); */
 
         } else if (commandName === 'addreview') {
             const book_id = options.getString('book_id');

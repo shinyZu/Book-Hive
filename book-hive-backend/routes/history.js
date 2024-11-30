@@ -12,19 +12,26 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-// Get all reading histories - Admin
-router.get("/", cors(), authenticateAdminToken, async (req, res) => {
-    console.log("inside getAll: admin - reading history")
+// Get all reading histories - Reader
+router.get("/", cors(), authenticateReaderToken, async (req, res) => {
+    console.log("inside getAll: reader - reading history")
     try {
         // const historyList = await ReadingHistory.find()
-
-        const { user_id } = req.query;
+        const verified = verifyToken(req.headers.authorization, res);
+        const { book_id, status  } = req.query;
 
         // Build the search criteria based on provided query parameters
         const searchCriteria = {};
-        if (user_id) {
-            searchCriteria.user_id = Number(user_id); 
+        
+        if (book_id) {
+            searchCriteria.book_id = Number(book_id); 
         }
+
+        if (status) {
+            searchCriteria.status = { $regex: status, $options: "i" }; 
+        }
+
+        searchCriteria.user_id = Number(verified.user_id); 
         
         const historyList = await ReadingHistory.aggregate([
             {
