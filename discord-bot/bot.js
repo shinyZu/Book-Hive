@@ -95,27 +95,9 @@ const commands = [
       name: 'deletebook',
       description: 'Delete a book from the library',
       options: [
-        // {
-        //     name: 'book_id',
-        //     description: 'The ID of the book to delete',
-        //     type: 3, // String
-        //     required: true,
-        // },
         {
-            name: 'title',
-            description: 'The title of the book to delete',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'author',
-            description: 'The author of the book to delete',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'genre',
-            description: 'The genre of the book to delete',
+            name: 'book_id',
+            description: 'The ID of the book to delete',
             type: 3, // String
             required: true,
         },
@@ -173,12 +155,6 @@ const commands = [
       name: 'searchbooks',
       description: 'Search for books by title, author, or genre',
       options: [
-        // {
-        //   name: 'query',
-        //   description: 'Search query (title, author, or genre)',
-        //   type: 3, // String
-        //   required: true,
-        // },
         {
             name: 'title',
             description: 'The title of the book',
@@ -392,35 +368,71 @@ client.on('interactionCreate', async (interaction) => {
             console.log(historyExist);
 
             const historyData = historyExist.data.data;
+
+            console.log('\n');
+            console.log("======historyData=======");
+            console.log(historyData);
+
+            if (historyData.length > 0) {
+        
+                // Update reading status
+                const response = await axios.patch(`${apiBaseUrl}/history/${historyData[0].history_id}`, { 
+                        status: status,
+                    },{
+                        headers: {
+                            Authorization: `Bearer ${jwtToken}`,    
+                    },
+                });
     
-            // Update reading status
-            const response = await axios.patch(`${apiBaseUrl}/history/${historyData[0].history_id}`, { 
-                    status: status,
-                },{
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`,    
+                if (response.status === 200 ) {
+                    // Get book data from Book collection
+                    const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
+                        headers: { 'Authorization': `Bearer ${jwtToken}` } 
+                    });
+    
+                    const searchResult = booksResponse.data.data;
+                    
+                    await interaction.reply(`Reading status of the book titled **${searchResult.title}** was updated successfully to "**${status}**".`);
+    
+                } else {
+                    await interaction.reply(`Failed to update redaing status of book **${searchResult.title}**.`);
+                }
+            } else {
+                await interaction.reply(`Book was not found in your library.`);
+            }
+
+        } else if (commandName === 'deletebook') {
+            const book_id = options.getString('book_id');
+
+            // Check if the book exists in the user's library
+            const historyExist = await axios.get(`${apiBaseUrl}/history`, {
+                params: { book_id },
+                headers: {
+                    Authorization: `Bearer ${jwtToken}`,
                 },
             });
 
-            if (response.status === 200 ) {
-                // Get book data from Book collection
-                const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
+            console.log('\n');
+            console.log("======historyExist=======");
+            console.log(historyExist);
+
+            const historyData = historyExist.data.data;
+
+            console.log('\n');
+            console.log("======historyData=======");
+            console.log(historyData);
+
+            // If the book is found in the user's library - delete
+            if (historyData.length > 0) {
+                const response = await axios.delete(`${apiBaseUrl}/history/${historyData[0].history_id}`, { 
                     headers: { 'Authorization': `Bearer ${jwtToken}` } 
                 });
 
-                const searchResult = booksResponse.data.data;
-                
-                await interaction.reply(`Reading status of the book titled **${searchResult.title}** was updated successfully to "**${status}**"`);
-
+                await interaction.reply(`Book titled **${historyData[0].Book.title}** was deleted successfully from your library!`);
             } else {
-                await interaction.reply(`Failed to update redaing status of book **${searchResult.title}**.`);
+                await interaction.reply(`Book was not found in your library.`);
             }
-
-
-        /*} else if (commandName === 'deletebook') {
-            const id = options.getString('id');
-            const response = await axios.delete(`${apiBaseUrl}/books/${id}`);
-            await interaction.reply(`Book ID ${id} deleted successfully!`); */
+            
 
         } else if (commandName === 'addreview') {
             const book_id = options.getString('book_id');
@@ -446,13 +458,9 @@ client.on('interactionCreate', async (interaction) => {
 
         } else if (commandName === 'listreviews') {
             const book_id = options.getString('book_id');
-            // const title = options.getString('title');
-            // const author = options.getString('author');
-            // const genre = options.getString('genre');
 
             // Get book data from Book collection
             const booksResponse = await axios.get(`${apiBaseUrl}/books/${book_id}`, { 
-                // params: { title, author, genre },
                 headers: { 'Authorization': `Bearer ${jwtToken}` } 
             });
             const searchResult = booksResponse.data.data;
@@ -461,7 +469,6 @@ client.on('interactionCreate', async (interaction) => {
             console.log("===========searchResult========");
             console.log(searchResult);
 
-            // const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${searchResult[0].book_id}`, { 
             const reviewsResponse = await axios.get(`${apiBaseUrl}/reviews/book/${book_id}`, { 
                 headers: { 'Authorization': `Bearer ${jwtToken}` } 
             });
@@ -488,7 +495,6 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.reply(`Review ID ${review_id} deleted successfully!`);
 
         } else if (commandName === 'searchbooks') {
-            // const query = options.getString('query');
             const title = options.getString('title');
             const author = options.getString('author');
             const genre = options.getString('genre');
