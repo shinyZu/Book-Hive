@@ -181,24 +181,6 @@ const commands = [
           type: 3, // Integer
           required: true,
         },
-        // {
-        //     name: 'title',
-        //     description: 'The title of the book to review',
-        //     type: 3, // String
-        //     required: true,
-        // },
-        // {
-        //     name: 'author',
-        //     description: 'The author of the book to review',
-        //     type: 3, // String
-        //     required: true,
-        // },
-        // {
-        //     name: 'genre',
-        //     description: 'The genre of the book to review',
-        //     type: 3, // String
-        //     required: false,
-        // },
         {
           name: 'review_text',
           description: 'Your review',
@@ -223,53 +205,17 @@ const commands = [
           type: 3, // String,
           required: true,
         },
-        // {
-        //     name: 'title',
-        //     description: 'The title of the book of which the review should be listed',
-        //     type: 3, // String
-        //     required: true,
-        // },
-        // {
-        //     name: 'author',
-        //     description: 'The author of the book of which the review should be listed',
-        //     type: 3, // String
-        //     required: true,
-        // },
-        // {
-        //     name: 'genre',
-        //     description: 'The genre of the book of which the review should be listed',
-        //     type: 3, // String
-        //     required: false,
-        // },
       ],
     },
     {
       name: 'deletereview',
       description: 'Delete a review',
       options: [
-        // {
-        //   name: 'review_id',
-        //   description: 'The ID of the review to delete',
-        //   type: 3, // String,
-        //   required: true,
-        // },
         {
-            name: 'title',
-            description: 'The title of the book of which the review should be deleted',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'author',
-            description: 'The author of the book of which the review should be deleted',
-            type: 3, // String
-            required: true,
-        },
-        {
-            name: 'genre',
-            description: 'The genre of the book of which the review should be deleted',
-            type: 3, // String
-            required: true,
+          name: 'review_id',
+          description: 'The ID of the review to delete',
+          type: 3, // String,
+          required: true,
         },
       ],
     },
@@ -506,11 +452,20 @@ client.on('interactionCreate', async (interaction) => {
             console.log(reviewList);
     
             if (reviewList.length > 0) {
-                const reviews = reviewList.map((rev) => `**User:** ${rev.User.first_name} ${rev.User.last_name},\n**Rating:** ${rev.rating}/5,\n**Review:** ${rev.review_text}`).join('\n\n');
+                const reviews = reviewList.map((rev) => `**User:** ${rev.User.first_name} ${rev.User.last_name},\n**Rating:** ${rev.rating}/5,\n**Review:** ${rev.review_text},\n**ID:** ${rev.review_id}`).join('\n\n');
                 await interaction.reply(`Reviews for the book titled "**${searchResult.title}**":\n\n${reviews}`);
             } else {
                 await interaction.reply(`No reviews found for the book titled "**${searchResult.title}**".`);
             }
+        
+        } else if (commandName === 'deletereview') {
+            const review_id = options.getString('review_id');
+
+            const response = await axios.delete(`${apiBaseUrl}/reviews/${review_id}`, { 
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+
+            await interaction.reply(`Review ID ${review_id} deleted successfully!`);
 
         } else if (commandName === 'searchbooks') {
             // const query = options.getString('query');

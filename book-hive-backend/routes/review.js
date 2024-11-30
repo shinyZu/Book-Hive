@@ -59,14 +59,17 @@ router.get("/", cors(), authenticateReaderToken, async (req, res) => {
 
 // Search review by Id - Reader
 router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
-    console.log("inside search review by id - reviews");
+    console.log("inside search review by review id - reviews");
 
     try {
+
+      const verified = verifyToken(req.headers.authorization, res);
 
       const pipeline = [
           {
             $match: {
               review_id: Number(req.params.review_id),
+              user_id: Number(verified.user_id),
             }
           },
           {
@@ -95,7 +98,11 @@ router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
 
       const reviewFound = await Review.aggregate(pipeline);
 
-      if (!reviewFound) {
+      console.log('\n');
+      console.log("===========reviewFound============");
+      console.log(reviewFound);
+
+      if (reviewFound.length === 0) {
         return res
           .status(404)
           .send({ status: 404, message: "Review not found." });
@@ -104,6 +111,7 @@ router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
       return res.send({
           status: 200,
           data: reviewFound,
+          message: "Reviews fetched successfully.",
       });
     } catch (err) {
       return res.status(400).send({ status: 400, message: err.message });
