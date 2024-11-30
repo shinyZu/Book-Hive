@@ -7,7 +7,19 @@ import ReadingHistory from '../models/reading-history.models.js';
 import Recommendation from '../models/recommendation.models.js';
 import Book from '../models/book.models.js'; 
 
+import dotenv from 'dotenv';
+import { OpenAI } from 'openai';
+
+dotenv.config();
+
+const apiKey = process.env.OPENAI_API_KEY;
+
 const router = express.Router();
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY, 
+});
 
 // Get all recommendations - Admin
 router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
