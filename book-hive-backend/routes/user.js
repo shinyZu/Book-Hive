@@ -15,8 +15,35 @@ const router = express.Router();
 router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll - users")
     try {
-        const users = await User.find();
-        
+
+        // const users = await User.find();
+        const users = await User.aggregate([
+          {
+            $lookup: {
+              from: "reviews", // the collection name in MongoDB
+              localField: "user_id", // the field from the User collection
+              foreignField: "user_id", // the corresponding field in the Review collection
+              as: "Reviews" // the name of the field where the joined data will be placed
+            }
+          },
+          {
+            $lookup: {
+              from: "readinghistories",
+              localField: "user_id",
+              foreignField: "user_id", 
+              as: "ReadingHistory"
+            }
+          },
+          {
+            $lookup: {
+              from: "recommendations",
+              localField: "user_id",
+              foreignField: "user_id", 
+              as: "Recommendation"
+            }
+          },
+        ])
+
         if (users.length === 0) {
           return res.status(200).json({ 
             status: 200, 
@@ -43,9 +70,40 @@ router.get("/", cors(), authenticateAdminToken, async (req, res) => {
 router.get( "/search/admin/:user_id", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside search user by id: admin - books");
     try {
-      const userFound = await User.findOne({
-        user_id: req.params.user_id,
-      });
+
+      const pipeline = [
+        {
+          $match: {
+            user_id: Number(req.params.user_id)
+          }
+        },
+        {
+          $lookup: {
+            from: "reviews", // the collection name in MongoDB
+            localField: "user_id", // the field from the User collection
+            foreignField: "user_id", // the corresponding field in the Review collection
+            as: "Reviews" // the name of the field where the joined data will be placed
+          }
+        },
+        {
+          $lookup: {
+            from: "readinghistories",
+            localField: "user_id",
+            foreignField: "user_id", 
+            as: "ReadingHistory"
+          }
+        },
+        {
+          $lookup: {
+            from: "recommendations",
+            localField: "user_id",
+            foreignField: "user_id", 
+            as: "Recommendation"
+          }
+        },
+      ]
+
+      const userFound = await User.aggregate(pipeline)
 
       if (!userFound) {
         return res
@@ -68,9 +126,39 @@ router.get("/search/:user_id", cors(), authenticateReaderToken, async (req, res)
     console.log("inside search user by id: reader - books");
 
     try {
-      const userFound = await User.findOne({
-          user_id: req.params.user_id,
-      });
+      const pipeline = [
+        {
+          $match: {
+            user_id: Number(req.params.user_id)
+          }
+        },
+        {
+          $lookup: {
+            from: "reviews", // the collection name in MongoDB
+            localField: "user_id", // the field from the User collection
+            foreignField: "user_id", // the corresponding field in the Review collection
+            as: "Reviews" // the name of the field where the joined data will be placed
+          }
+        },
+        {
+          $lookup: {
+            from: "readinghistories",
+            localField: "user_id",
+            foreignField: "user_id", 
+            as: "ReadingHistory"
+          }
+        },
+        {
+          $lookup: {
+            from: "recommendations",
+            localField: "user_id",
+            foreignField: "user_id", 
+            as: "Recommendation"
+          }
+        },
+      ]
+
+      const userFound = await User.aggregate(pipeline);
 
       if (!userFound) {
         return res

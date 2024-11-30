@@ -15,12 +15,24 @@ const router = express.Router();
 router.get("/", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside getAll - reviews")
     try {
-        const reviewList = await Review.find()
+        // const reviewList = await Review.find();
 
-        // Fetch reviews and populate the user_id and book_id fields
-        // const reviewList = await Review.find()
-        //     .populate('user_id', '-password') // Populate user_id and exclude the password field
-        //     .populate('book_id'); 
+        const reviewList = await Review.aggregate([
+            {
+                $lookup: {
+                    from: "users", // The collection name for the User model
+                    localField: "user_id", // The field in the Review collection
+                    foreignField: "user_id", // The corresponding field in the User collection
+                    as: "User", // The field to hold the joined user data
+                },
+            },
+            {
+                $unwind: {
+                    path: "$User", // Unwind the User array to flatten the data
+                    preserveNullAndEmptyArrays: true, // Include reviews without user data
+                },
+            },
+        ]);
 
         if (reviewList.length === 0) {
             return res.status(200).json({ 
@@ -49,9 +61,38 @@ router.get("/:review_id", cors(), authenticateReaderToken, async (req, res) => {
     console.log("inside search review by id - reviews");
 
     try {
-      const reviewFound = await Review.findOne({
-          review_id: req.params.review_id,
-      });
+
+      const pipeline = [
+          {
+            $match: {
+              review_id: Number(req.params.review_id),
+            }
+          },
+          {
+              $lookup: {
+                  from: "users", // The collection name for the User model
+                  localField: "user_id", // The field in the Review collection
+                  foreignField: "user_id", // The corresponding field in the User collection
+                  as: "User", // The field to hold the joined user data
+              },
+          },
+          {
+              $lookup: {
+                  from: "books",
+                  localField: "book_id",
+                  foreignField: "book_id", 
+                  as: "Book",
+              },
+          },
+          {
+              $unwind: {
+                  path: "$User", // Unwind the User array to flatten the data
+                  preserveNullAndEmptyArrays: true, // Include reviews without user data
+              },
+          },
+      ]
+
+      const reviewFound = await Review.aggregate(pipeline);
 
       if (!reviewFound) {
         return res

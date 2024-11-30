@@ -17,12 +17,37 @@ router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll: admin - reading history")
     try {
         // const historyList = await ReadingHistory.find()
-        // res.status(200).json(historyList)
-
-        // Fetch reading history and populate the user_id and book_id fields
-        const historyList = await ReadingHistory.find()
-            .populate('user_id', '-password')
-            .populate('book_id'); 
+        
+        const historyList = await ReadingHistory.aggregate([
+            {
+                $lookup: {
+                    from: "users", // The collection name for the User model
+                    localField: "user_id", // The field in the ReadingHistory collection
+                    foreignField: "user_id", // The corresponding field in the User collection
+                    as: "User", // The field to hold the joined user data
+                },
+            },
+            {
+                $unwind: {
+                    path: "$User", // Unwind the User array to flatten the data
+                    preserveNullAndEmptyArrays: true, // Include reviews without user data
+                },
+            },
+            {
+                $lookup: {
+                    from: "books", 
+                    localField: "book_id", 
+                    foreignField: "book_id", 
+                    as: "Book", 
+                },
+            },
+            {
+                $unwind: {
+                    path: "$Book", 
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+        ]);
 
         if (historyList.length === 0) {
             return res.status(200).json({ 
@@ -53,10 +78,46 @@ router.get("/:history_id", cors(), authenticateReaderToken, async (req, res) => 
     try {
         const verified = verifyToken(req.headers.authorization, res);
 
-        const historyFound = await ReadingHistory.findOne({
-            history_id: req.params.history_id,
-            user_id: verified.user_id,
-        });
+        const pipeline = [
+            {
+              $match: {
+                history_id: Number(req.params.history_id),
+                user_id: Number(verified.user_id),
+              }
+            },
+            {
+                $lookup: {
+                    from: "users", // The collection name for the User model
+                    localField: "user_id", // The field in the ReadingHistory collection
+                    foreignField: "user_id", // The corresponding field in the User collection
+                    as: "User", // The field to hold the joined user data
+                },
+            },
+            {
+                $unwind: {
+                    path: "$User", // Unwind the User array to flatten the data
+                    preserveNullAndEmptyArrays: true, // Include reviews without user data
+                },
+            },
+            {
+                $lookup: {
+                    from: "books", 
+                    localField: "book_id", 
+                    foreignField: "book_id", 
+                    as: "Book", 
+                },
+            },
+            {
+                $unwind: {
+                    path: "$Book", 
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+        ]
+
+        const historyFound = await ReadingHistory.aggregate(pipeline);
+
+        
 
         if (!historyFound) {
             return res

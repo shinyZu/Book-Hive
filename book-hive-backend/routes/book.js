@@ -35,11 +35,30 @@ router.get("/", cors(), authenticateReaderToken, async (req, res) => {
         }
 
         console.log("searchCriteria: " + searchCriteria);
-
+          
         // Find books matching the search criteria, or return all books if no criteria are provided
-        const bookList = await Book.find(
-            Object.keys(searchCriteria).length ? searchCriteria : {}
-        );
+        // Lookup functionality
+        const bookList = await Book.aggregate([
+          {
+            $match: Object.keys(searchCriteria).length ? searchCriteria : {},
+          },
+          {
+            $lookup: {
+              from: "reviews", // the collection name in MongoDB
+              localField: "book_id", // the field from the Book collection
+              foreignField: "book_id", // the corresponding field in the Review collection
+              as: "Reviews" // the name of the field where the joined data will be placed
+            }
+          },
+          /* {
+            $lookup: {
+              from: "readinghistories",
+              localField: "book_id", 
+              foreignField: "book_id",
+              as: "ReadingHistory"
+            }
+          }, */
+        ])
         
         if (bookList.length === 0) {
           return res.status(200).json({ 
