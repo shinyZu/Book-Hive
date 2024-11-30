@@ -277,12 +277,36 @@ const commands = [
       name: 'searchbooks',
       description: 'Search for books by title, author, or genre',
       options: [
+        // {
+        //   name: 'query',
+        //   description: 'Search query (title, author, or genre)',
+        //   type: 3, // String
+        //   required: true,
+        // },
         {
-          name: 'query',
-          description: 'Search query (title, author, or genre)',
-          type: 3, // String
-          required: true,
-        },
+            name: 'title',
+            description: 'The title of the book',
+            type: 3, // String
+            required: true,
+          },
+          {
+            name: 'author',
+            description: 'The author of the book',
+            type: 3, // String
+            required: true,
+          },
+          {
+            name: 'genre',
+            description: 'The genre of the book',
+            type: 3, // String
+            required: false,
+          },
+          {
+            name: 'published_year',
+            description: 'The published year of the book',
+            type: 3, // String
+            required: false,
+          },
       ],
     },
 ];
@@ -386,7 +410,7 @@ client.on('interactionCreate', async (interaction) => {
                     await interaction.reply(
                         `The status of book "${title}" was updated to "${status}" successfully!`
                     );
-
+                    
                 } else {
                     // Book is not in the reading history, proceed with adding it
                     try {
@@ -413,11 +437,33 @@ client.on('interactionCreate', async (interaction) => {
                     }
                 }
 
+            } 
+
+        } else if (commandName === 'searchbooks') {
+            // const query = options.getString('query');
+            const title = options.getString('title');
+            const author = options.getString('author');
+            const genre = options.getString('genre');
+            const published_year = options.getString('published_year');
+
+            const response = await axios.get(`${apiBaseUrl}/books`, { 
+                params: { title, author, genre, published_year },
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const searchResult = response.data.data;
+
+            console.log("\n");
+            console.log("===========searchResult========");
+            console.log(searchResult);
+    
+            // if response with books
+            if (searchResult.length > 0 ) {
+                const bookList = searchResult.map((book) => `**Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
+                await interaction.reply(`Search results:\n${bookList}`);
             } else {
-               
+                await interaction.reply('No books found.');
             }
-        } 
-        
+        }
     } catch (error) {
         console.error(error);
         await interaction.reply('An error occurred while processing your request.');
