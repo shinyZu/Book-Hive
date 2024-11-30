@@ -439,6 +439,23 @@ client.on('interactionCreate', async (interaction) => {
 
             } 
 
+        } else if (commandName === 'listbooks') {
+            const response = await axios.get(`${apiBaseUrl}/books`, { 
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const searchResult = response.data.data;
+
+            console.log("\n");
+            console.log("===========searchResult========");
+            console.log(searchResult);
+    
+            if (searchResult.length === 0) {
+                await interaction.reply('No books found in your collection.');
+            } else {
+                const bookList = searchResult.map((book) => `**Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
+                await interaction.reply(`Search results:\n${bookList}`);
+            }
+
         } else if (commandName === 'searchbooks') {
             // const query = options.getString('query');
             const title = options.getString('title');
@@ -472,6 +489,3 @@ client.on('interactionCreate', async (interaction) => {
 
 // Log the bot in
 client.login(token);
-
-
-// /addbook title:"The Great Gatsby" author:"F. Scott Fitzgerald" genre:"Fiction"
