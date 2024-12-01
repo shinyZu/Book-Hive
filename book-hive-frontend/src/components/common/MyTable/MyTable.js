@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 
-const RegisterForm = (props) => {
-    return "RegisterForm Component"
+const MyTable = (props) => {
+    return "MyTable Component"
 }
