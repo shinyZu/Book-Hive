@@ -73,18 +73,18 @@ jobs:
       #   env:
       #     URL: ${{ secrets.TEST_DATABASE_URL }}
 
-      # 8. Build and Package the application
-      - name: Build and Package the backend
-        working-directory: ./book-hive-backend
-        run: npm run start-dev
+      # # 8. Build and Package the application
+      # - name: Build and Package the backend
+      #   working-directory: ./book-hive-backend
+      #   run: npm run start-dev
 
-      - name: Build and Package the frontend
-        working-directory: ./book-hive-frontend
-        run:  npm start &
+      # - name: Build and Package the frontend
+      #   working-directory: ./book-hive-frontend
+      #   run:  npm start &
 
-      - name: Run the Discord Bot
-        working-directory: ./discord-bot
-        run: node bot.js &
+      # - name: Run the Discord Bot
+      #   working-directory: ./discord-bot
+      #   run: node bot.js &
 
       # 9. Print Success Message 1
       - name: Mark Success of App Build
