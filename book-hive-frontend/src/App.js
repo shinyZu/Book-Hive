@@ -7,10 +7,13 @@ import {
 } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
+import Login from "./pages/Login/Login";
 import Home from "./pages/Home/Home";
+import AdminPanel from "./pages/AdminPanel/AdminPanel";
 
 // ----------- Only for Testing Purposes ------------------------
-const userAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiU3VuIERlYyAwMSAyMDI0IDA0OjQ2OjA2IEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKSIsInVzZXJfaWQiOjIsInVzZXJuYW1lIjoiZGF2aWQxMTExIiwiZW1haWwiOiJkYXZpZDk5QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJHJSTThNSy9FOWhUSnk1UGhpWlVnQnVncFBacXhsZ0hFWUlUYnFML0x3cjcuNVkyLlplNUZXIiwidXNlcl9yb2xlIjoicmVhZGVyIiwiYWNjZXNzVG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwicmVmcmVzaG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwiaWF0IjoxNzMzMDA4NTY2LCJleHAiOjE3MzMwOTQ5NjZ9.CIDHKgSJDKy_Q0z-0hozGw2hpbFopU57OMbYgrirvDo"
+const userAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiU3VuIERlYyAwMSAyMDI0IDA0OjQ2OjQ0IEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKSIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoic2hpbnkxMjM0IiwiZW1haWwiOiJzaGlueTk5QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJGFtSXoxZmJZTi5Vb2hFaGhMb1o5Zi5jZ3ZnR3dNQTJIc3FJWW0vS3FJTExtVkNVeWhwZDRDIiwidXNlcl9yb2xlIjoiYWRtaW4iLCJhY2Nlc3NUb2tlbl9leHBpcmVzX2luIjoiMjQgaG91cnMiLCJyZWZyZXNob2tlbl9leHBpcmVzX2luIjoiMjQgaG91cnMiLCJpYXQiOjE3MzMwMDg2MDQsImV4cCI6MTczMzA5NTAwNH0.hBMC2yd_LaWKTo-qlxrapWirTNoWeA47tGCH7mkJkm0"
+// const userAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiU3VuIERlYyAwMSAyMDI0IDA0OjQ2OjA2IEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKSIsInVzZXJfaWQiOjIsInVzZXJuYW1lIjoiZGF2aWQxMTExIiwiZW1haWwiOiJkYXZpZDk5QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJHJSTThNSy9FOWhUSnk1UGhpWlVnQnVncFBacXhsZ0hFWUlUYnFML0x3cjcuNVkyLlplNUZXIiwidXNlcl9yb2xlIjoicmVhZGVyIiwiYWNjZXNzVG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwicmVmcmVzaG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwiaWF0IjoxNzMzMDA4NTY2LCJleHAiOjE3MzMwOTQ5NjZ9.CIDHKgSJDKy_Q0z-0hozGw2hpbFopU57OMbYgrirvDo"
 
 function App() {
 
@@ -69,6 +72,29 @@ function App() {
           <Routes>
               <Route path="/" exact element={<Navigate replace to="/home" />} />
               <Route path="/home" element={<Home handleLogin={handleLogin} />} />
+              <Route path="/admin" element={<Navigate replace to="/login" />} />
+              
+              <Route
+                  path="/home"
+                  element={
+                      isReader && !isAdmin ? (
+                          <Home handleLogin={handleLogin} />
+                      ) : (
+                          <Login onLogin={handleLogin} />
+                      )
+                    }
+              />
+
+              <Route
+                  path="/admin/panel"
+                  element={
+                      isAdmin && !isReader ? (
+                          <AdminPanel />
+                      ) : (
+                          <Navigate replace to="/home" />
+                      )
+                  }
+              />
           </Routes>
       </Router>
   );

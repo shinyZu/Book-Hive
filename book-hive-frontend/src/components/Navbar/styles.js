@@ -21,7 +21,7 @@ export const styleSheet = {
     },
     nav__tabs: {
     //   border: "2px solid deeppink",
-    //   width: "100%",
+      width: "25%",
     },
     nav_left: {
     //   border: "2px solid blue",

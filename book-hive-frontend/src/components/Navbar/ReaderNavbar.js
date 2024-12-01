@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Link, NavLink } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 import { styleSheet } from "./styles";
 import { withStyles } from "@mui/styles";
@@ -32,6 +33,10 @@ const header_bg_texture =
 
 const pages = ["Home", "My Library" ];
 
+// ----------- Only for Testing Purposes ------------------------
+const userAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiU3VuIERlYyAwMSAyMDI0IDA0OjQ2OjQ0IEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKSIsInVzZXJfaWQiOjEsInVzZXJuYW1lIjoic2hpbnkxMjM0IiwiZW1haWwiOiJzaGlueTk5QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJGFtSXoxZmJZTi5Vb2hFaGhMb1o5Zi5jZ3ZnR3dNQTJIc3FJWW0vS3FJTExtVkNVeWhwZDRDIiwidXNlcl9yb2xlIjoiYWRtaW4iLCJhY2Nlc3NUb2tlbl9leHBpcmVzX2luIjoiMjQgaG91cnMiLCJyZWZyZXNob2tlbl9leHBpcmVzX2luIjoiMjQgaG91cnMiLCJpYXQiOjE3MzMwMDg2MDQsImV4cCI6MTczMzA5NTAwNH0.hBMC2yd_LaWKTo-qlxrapWirTNoWeA47tGCH7mkJkm0"
+// const userAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiU3VuIERlYyAwMSAyMDI0IDA0OjQ2OjA2IEdNVCswNTMwIChJbmRpYSBTdGFuZGFyZCBUaW1lKSIsInVzZXJfaWQiOjIsInVzZXJuYW1lIjoiZGF2aWQxMTExIiwiZW1haWwiOiJkYXZpZDk5QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJHJSTThNSy9FOWhUSnk1UGhpWlVnQnVncFBacXhsZ0hFWUlUYnFML0x3cjcuNVkyLlplNUZXIiwidXNlcl9yb2xlIjoicmVhZGVyIiwiYWNjZXNzVG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwicmVmcmVzaG9rZW5fZXhwaXJlc19pbiI6IjI0IGhvdXJzIiwiaWF0IjoxNzMzMDA4NTY2LCJleHAiOjE3MzMwOTQ5NjZ9.CIDHKgSJDKy_Q0z-0hozGw2hpbFopU57OMbYgrirvDo"
+
 const ReaderNavbar = (props) => {
     const { classes } = props;
     const navigate = useNavigate();
@@ -46,9 +51,18 @@ const ReaderNavbar = (props) => {
         return true;
     });
 
+    const [isAdmin, setIsAdmin] = useState(() => {
+        // const token = localStorage.getItem("token");
+        const token = userAccessToken;
+        if (token) {
+          const isAdmin = jwtDecode(token).user_role === "admin";
+          return isAdmin ? true : false;
+        }
+      });
+
     const navLinkStyle = ({ isActive }) => {
         return {
-        color: isActive ? "#D25380" : "normal",
+            color: isActive ? "#D25380" : "normal",
         };
     };
 
@@ -151,7 +165,7 @@ const ReaderNavbar = (props) => {
                     </Box>
                     {/* <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} /> */}
                     <Box 
-                        sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent:"flex-end" }} 
+                        sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent:"flex-end"}} 
                     >
                         <Tabs
                             value={value}
@@ -165,35 +179,39 @@ const ReaderNavbar = (props) => {
                                 label="Home"
                             />
                             </Link> */}
-            
-                            <NavLink
-                                smooth
-                                to="/home"
-                                className={classes.nav__text}
-                                style={navLinkStyle}
-                            >
-                                <Tab
-                                    value="1"
-                                    icon={<HomeIcon />}
-                                    className={classes.nav__text}
-                                    label="Home"
-                                />
-                            </NavLink>
-            
-                            {isLogged ? (
-                                <NavLink
-                                    smooth
-                                    to="/my-library"
-                                    className={classes.nav__text}
-                                    style={navLinkStyle}
-                                >
-                                <Tab
-                                    value="2"
-                                    icon={<AutoStoriesIcon />}
-                                    className={classes.nav__text}
-                                    label="My Library"
-                                />
-                            </NavLink>
+
+                            {isLogged && isAdmin && null}
+
+                            {isLogged && !isAdmin ? (
+                                <>
+                                    <NavLink
+                                        smooth
+                                        to="/home"
+                                        className={classes.nav__text}
+                                        style={navLinkStyle}
+                                    >
+                                        <Tab
+                                            value="1"
+                                            icon={<HomeIcon />}
+                                            className={classes.nav__text}
+                                            label="Home"
+                                        />
+                                    </NavLink>
+
+                                    <NavLink
+                                        smooth
+                                        to="/my-library"
+                                        className={classes.nav__text}
+                                        style={navLinkStyle}
+                                    >
+                                    <Tab
+                                        value="2"
+                                        icon={<AutoStoriesIcon />}
+                                        className={classes.nav__text}
+                                        label="My Library"
+                                    />
+                                </NavLink>
+                                </>
                             ) : null}
                         </Tabs>
                     </Box>
