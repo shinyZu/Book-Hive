@@ -232,7 +232,7 @@ router.post("/", cors(), authenticateReaderToken, async (req, res) => {
         // Create a new ReadingHistory instance
         const newHistory = new ReadingHistory({
             history_id: await generateNextHistoryId(),
-            status: body.status || ReadingStatus.WANT_TO_READ, // Default to 'Want To Read' if not provided
+            status: body.status || ReadingStatus.START_READING, // Default to 'Want To Read' if not provided
             // startDate: body.startDate,
             // endDate: body.endDate,
             user_id: verified.user_id,

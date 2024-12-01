@@ -38,7 +38,7 @@ router.get("/", cors(), authenticateReaderToken, async (req, res) => {
             searchCriteria.genre = { $regex: genre, $options: "i" };
         }
         if (published_year) {
-            searchCriteria.published_year = Number(published_year); // Ensure it's a number
+            searchCriteria.published_year = { $regex: published_year, $options: "i" };
         }
 
         console.log("searchCriteria: " + searchCriteria);

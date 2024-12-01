@@ -71,6 +71,7 @@ const authenticateReaderToken = async (req, res, next) => {
 
         } else if (!req.params.user_id && verified.user_role == "reader") {
             const user = await User.findOne({user_id:verified.user_id});
+            console.log(user);
             if (user.user_id == verified.user_id) {
                 req.email = verified.email;
                 req.user_role = verified.user_role;

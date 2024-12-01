@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-// Get all users
+// Get all users - Admin
 router.get("/", cors(), authenticateAdminToken, async (req, res) => {
     console.log("inside getAll - users")
     try {
@@ -68,7 +68,7 @@ router.get("/", cors(), authenticateAdminToken, async (req, res) => {
 
 // Search user by Id - Authorized only for Admin
 router.get( "/search/admin/:user_id", cors(), authenticateAdminToken, async (req, res) => {
-    console.log("inside search user by id: admin - books");
+    console.log("inside search user by id: admin - users");
     try {
 
       const pipeline = [
@@ -121,15 +121,19 @@ router.get( "/search/admin/:user_id", cors(), authenticateAdminToken, async (req
   }
 );
 
-// Search user by Id - Authorized by relevant Reader
+// Search user profile - Authorized by relevant Reader
 router.get("/search/:user_id", cors(), authenticateReaderToken, async (req, res) => {
-    console.log("inside search user by id: reader - books");
+// router.get("/profile", cors(), authenticateReaderToken, async (req, res) => {
+    console.log("inside search user by id: reader - users");
 
     try {
+      const verified = verifyToken(req.headers.authorization, res);
+
       const pipeline = [
         {
           $match: {
-            user_id: Number(req.params.user_id)
+            // user_id: Number(req.params.user_id)
+            user_id: Number(verified.user_id)
           }
         },
         {
@@ -178,7 +182,7 @@ router.get("/search/:user_id", cors(), authenticateReaderToken, async (req, res)
 
 // Update user details  - only for Readers
 router.put("/:user_id", cors(), authenticateReaderToken, async (req, res) => {
-    console.log("inside update user by id: reader - books");
+    console.log("inside update user by id: reader - users");
 
     try {
         const body = req.body;

@@ -75,9 +75,11 @@ router.post("/signup", cors(), async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(body.password, salt);
   
+      const nextUserId = await generateNextUserId();
+
       // Create a new user instance
       const newUser = new User({
-          user_id: await generateNextUserId(),
+          user_id: nextUserId,
           first_name: body.first_name,
           last_name: body.last_name,
           username: body.username,
@@ -95,7 +97,7 @@ router.post("/signup", cors(), async (req, res) => {
 
       // Call login() in login router
       let tokenData = await generateToken(
-          await generateNextUserId(),
+          nextUserId,
           body.username,
           body.email,
           hashedPassword,

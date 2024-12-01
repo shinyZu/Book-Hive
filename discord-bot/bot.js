@@ -9,12 +9,10 @@ dotenv.config();
 // Fetch setup
 global.fetch = fetch;
 
-
 console.log('-----------Loaded-------------');
 
-
 // Discord bot token
-const token = process.env.BOT_TOKEN;
+const botToken = process.env.BOT_TOKEN;
 
 // API base URL for the Book Recommendation System
 const apiBaseUrl = process.env.BASE_URL;
@@ -188,7 +186,7 @@ const commands = [
 ];
 
 // Register the commands with Discord's API
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(botToken);
 (async () => {
   try {
     console.log('Refreshing slash commands...');
@@ -212,9 +210,6 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
 
     const { commandName, options } = interaction;
-    const userDiscordId = interaction.user.id;
-
-    console.log("interaction.user.id: "+ userDiscordId); // 756432766824087654
 
     // Check if the access token given from the Book Hive app is expired or not
     const isTokenExpired = checkIfJWTTokenIsExpired();
@@ -234,6 +229,10 @@ client.on('interactionCreate', async (interaction) => {
 
     // Id of the user as in the system
     const system_user_id = verifiedToken.user_id;
+    
+    // Id of the user in discord
+    const userDiscordId = interaction.user.id;
+    console.log("interaction.user.id: "+ userDiscordId); // 756432766824087654
     
     // Save user's discord id to the database - linked_discord_id
     const updatedUser = await axios.patch(`${apiBaseUrl}/users/${system_user_id}`, {
@@ -562,7 +561,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-
+// Function to check if the JWT access token of the web app user is expired or not
 const checkIfJWTTokenIsExpired = () => {
     try {
         // Verify the token
@@ -585,4 +584,4 @@ const checkIfJWTTokenIsExpired = () => {
 }
 
 // Log the bot in
-client.login(token);
+client.login(botToken);
