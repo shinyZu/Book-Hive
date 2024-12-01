@@ -17,7 +17,9 @@ before(async () => {
             await collections[key].deleteMany({});
         }
         
+        console.log('\n');
         console.log('All collections cleared before tests.');
+        
     } catch (err) {
         console.error('Error clearing database before tests:', err);
         throw err;
@@ -32,6 +34,7 @@ after(async () => {
             await collections[key].deleteMany({});
         }
         
+        console.log('\n');
         console.log('All collections cleared after tests.');
         
     } catch (error) {

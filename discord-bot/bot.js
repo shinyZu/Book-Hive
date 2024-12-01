@@ -38,6 +38,10 @@ const commands = [
         description: 'Link the Discord account to the Book Recommendation System.',
     },
     {
+        name: 'recommendbooks',
+        description: 'Recommends the books based on your reading history',
+    },
+    {
       name: 'addbook',
       description: 'Add a new book to users library',
       options: [
@@ -248,6 +252,23 @@ client.on('interactionCreate', async (interaction) => {
     console.log(updatedUser);
   
     try {
+        if (commandName === 'recommendbooks') {
+            const response = await axios.get(`${apiBaseUrl}/recommendations`, { 
+                headers: { 'Authorization': `Bearer ${jwtToken}` } 
+            });
+            const searchResult = response.data.data;
+
+            console.log("\n");
+            console.log("===========response========");
+            console.log(response);
+    
+            if (response.data.status === 202) {
+                await interaction.reply(`We're sorry, but we don't have any book recommendations for you yet because no books were found in your library. BookHiveBot learns about your personal tastes from the books in your library, then generates recommendations unique to you.`);
+            } else {
+                const recommendations = searchResult.map((book) => `**Book ID:** ${book.book_id}, **Title:** ${book.title}, **Author:** ${book.author}, **Genre:** ${book.genre}, **Pulished Year:** ${book.published_year}`).join('\n');
+                await interaction.reply(`Search results:\n${recommendations}`);
+            }
+        }
         if (commandName === 'addbook') {
             const title = options.getString('title');
             const author = options.getString('author');
@@ -269,7 +290,7 @@ client.on('interactionCreate', async (interaction) => {
             // If the book does not exist, notify the user
             if (bookResponse.data.data.length === 0) {
                 await interaction.reply(
-                  `The book "${title}" of genre ${genre} authored by ${author} is not currently available in the database. Please contact an admin to add it.`
+                  `The book "**${title}**" of genre ${genre} authored by ${author} is **currently not available** in the database. Please contact an admin to add it.`
                 );
                 return;
             }

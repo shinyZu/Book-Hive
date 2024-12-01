@@ -153,7 +153,25 @@ const AdminNavbar = (props) => {
                     <Box 
                         sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent:"flex-end"}} 
                     >
-                        <Tabs
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            // href="/home"
+                            sx={{
+                            mr: 2,
+                            display: { xs: "none", md: "flex" },
+                            fontFamily: "Acme",
+                            fontWeight: 800,
+                            // letterSpacing: ".3rem",
+                            // color: "inherit",
+                            color: "#AC7088",
+                            textDecoration: "none",
+                            }}
+                        >
+                            Admin Panel
+                        </Typography>
+                        {/* <Tabs
                             value={value}
                             onChange={changePage}
                             className={classes.nav__tabs}
@@ -189,7 +207,7 @@ const AdminNavbar = (props) => {
                                 </NavLink>
                                 </>
                             ) : null}
-                        </Tabs>
+                        </Tabs> */}
                     </Box>
                     {isLogged ? (
                         <Box sx={{ flexGrow: 0 }}>

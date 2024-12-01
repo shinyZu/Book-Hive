@@ -34,7 +34,7 @@ const verifyToken = (authHeader, res) => {
       }
   
       const verified = jwt.verify(access_token, jwtSecretKey);
-      console.log("verified---", verified)
+    //   console.log("verified---", verified)
   
       if (verified) {
             return verified;

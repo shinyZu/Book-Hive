@@ -20,7 +20,8 @@ const openai = new OpenAI({
 
 // Get all books - Readers
 // Search book by title, author, genre, published_year - Readers
-router.get("/", cors(), authenticateReaderToken, async (req, res) => {
+router.get("/", cors(), /* authenticateReaderToken, */ async (req, res) => {
+    console.log('\n');
     console.log("inside getAll - books")
     try {
 
@@ -145,6 +146,8 @@ router.post("/", cors(), authenticateAdminToken, async (req, res) => {
             author: body.author,
             genre: body.genre,
             published_year: body.published_year,
+            image_name: body.image_name,
+            image_url: body.image_url,
         });
     
         // Save the book to the database

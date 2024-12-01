@@ -359,10 +359,10 @@ describe('POST /auth/login', () => {
           .end((err, res) => {
             if (err) return done(err);
 
-            console.log('\n');
-            console.log("Response Status", res.status);
-            console.log("Response Body", res.text);
-            console.log('\n');
+            // console.log('\n');
+            // console.log("Response Status", res.status);
+            // console.log("Response Body", res.text);
+            // console.log('\n');
     
             expect(res).to.have.status(400);
             expect(res.body).to.have.property('status').that.equals(400);

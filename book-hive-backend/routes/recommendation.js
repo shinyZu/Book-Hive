@@ -82,14 +82,14 @@ router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
 
 // Get recommendations
 router.get("/", cors(), authenticateReaderToken, async (req, res) => {
-    // const { user_id } = req.query;
+   /*  const { user_id } = req.query;
 
-    // if (!user_id) {
-    //     return res.status(400).json({
-    //         status: 400,
-    //         message: "User ID is required for book recommendations."
-    //     });
-    // }
+    if (!user_id) {
+        return res.status(400).json({
+            status: 400,
+            message: "User ID is required for book recommendations."
+        });
+    } */
 
     try {
 
@@ -99,9 +99,10 @@ router.get("/", cors(), authenticateReaderToken, async (req, res) => {
         const readingHistory = await ReadingHistory.find({ user_id: Number(verified.user_id) });
 
         if (readingHistory.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: `We're sorry, but we don't have any book recommendations for you yet because no books were found in your library. BookHive learns about your personal tastes from the books in your library, then generates recommendations unique to you.`
+            return res.status(202).json({
+                status: 202,
+                message: `We're sorry, but we don't have any book recommendations for you yet because no books were found in your library. 
+                BookHive learns about your personal tastes from the books in your library, then generates recommendations unique to you.`
             });
         }
 

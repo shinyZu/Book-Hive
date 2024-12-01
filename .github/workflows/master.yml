@@ -67,8 +67,8 @@ jobs:
         run: npm install
 
       # 4. Run the Tests
-      # - name: Run Tests
-      #  run: npm test # Specify test scripts here
+      - name: Run Tests
+        run: npm test # Specify test scripts here
 
       # 5. Build and Package the application
       # - name: Build and Package the backend

@@ -17,13 +17,14 @@ const router = express.Router();
 const accessToken_expiresIn = process.env.JWT_ACCESS_TOKEN_EXPIRE
 const refreshToken_expiresIn = process.env.JWT_REFRESH_TOKEN_EXPIRE;
 
-// const accessToken_expires_in = "1800 seconds"
-const accessToken_expires_in = "24 hours"
+const accessToken_expires_in = "1800 seconds"
+// const accessToken_expires_in = "24 hours"
 const refreshToken_expires_in = "24 hours"
 
 // Get all logged users
 router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
-    console.log("inside getAll: admin - auth")
+    console.log('\n');
+    console.log("inside getAllLogins: admin - auth")
     try {
       const loggedUsers = await Login.find();
       
@@ -51,6 +52,7 @@ router.get("/getAll", cors(), authenticateAdminToken, async (req, res) => {
 
 // Sign Up & generate JWT token
 router.post("/signup", cors(), async (req, res) => {
+  console.log('\n');
   console.log("inside signup - auth")
   
   try {
@@ -92,8 +94,6 @@ router.post("/signup", cors(), async (req, res) => {
   
       // Save the user to the database
       const savedUser = await newUser.save();
-      console.log("======savedUser=======")
-      // console.log(savedUser)
 
       // Call login() in login router
       let tokenData = await generateToken(
@@ -105,8 +105,8 @@ router.post("/signup", cors(), async (req, res) => {
           res
       );
 
-      console.log("=============== signup - tokenData in auth.js: ===============");
-      console.log(tokenData);
+      // console.log("=============== signup - tokenData in auth.js: ===============");
+      // console.log(tokenData);
 
       try {
         if (savedUser && tokenData) {
@@ -141,10 +141,10 @@ router.post("/signup", cors(), async (req, res) => {
 
 // Login User & generate JWT token -  in use
 router.post("/login", cors(), async (req, res) => {
+  console.log('\n');
   console.log("inside login - auth")
 
   try {
-    console.log(req.body);
     const userExist = await User.findOne({ email: req.body.email });
     const userAlreadyLogged = await Login.findOne({ email: req.body.email });
 
@@ -177,7 +177,7 @@ router.post("/login", cors(), async (req, res) => {
       res
     );
 
-    console.log("=============== login - tokenData in auth.js: ===============");
+    // console.log("=============== login - tokenData in auth.js: ===============");
     // console.log(tokenData);
 
     try {
@@ -213,10 +213,10 @@ router.post("/login", cors(), async (req, res) => {
 
 // Logout User
 router.delete("/logout", cors(), async (req, res) => {
+  console.log('\n');
   console.log("inside logout - auth")
 
   try {
-    console.log(req.body);
     const userAlreadyLogged = await Login.findOne({ email: req.body.email });
 
     const loggesUser = await Login.findOne({ email: req.body.email });

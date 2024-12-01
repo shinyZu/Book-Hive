@@ -30,6 +30,15 @@ const BookSchema = new Schema(
         type: String,
         required: true,
     },
+    image_name: {
+      type: String,
+      // required: true,
+    },
+    image_url: {
+      type: String,
+      // required: true,
+    },
+  
   },
   {
     timestamps: true,

@@ -91,12 +91,12 @@ const ReaderNavbar = (props) => {
         <AppBar
             position="static"
                 style={{
-                backgroundImage: `url(${header_bg_texture})`,
-                width: "68%",
-                margin: "auto",
-                color:"red",
-                backgroundColor:"white"
-            }}
+                    backgroundImage: `url(${header_bg_texture})`,
+                    width: "68%",
+                    margin: "auto",
+                    color:"red",
+                    backgroundColor:"white",
+                }}
         >
             <Container maxWidth="x3">
                 <Toolbar disableGutters>
@@ -167,53 +167,71 @@ const ReaderNavbar = (props) => {
                     <Box 
                         sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent:"flex-end"}} 
                     >
-                        <Tabs
-                            value={value}
-                            onChange={changePage}
-                            className={classes.nav__tabs}
-                        >
-                            {/* <Link to="/home" className={classes.nav__text}>
-                            <Tab
-                                icon={<HomeIcon />}
-                                className={classes.nav__text}
-                                label="Home"
-                            />
-                            </Link> */}
+                        {isLogged && isAdmin ? (
+                            <Typography
+                                variant="h6"
+                                noWrap
+                                component="a"
+                                // href="/home"
+                                sx={{
+                                    mr: 2,
+                                    display: { xs: "none", md: "flex" },
+                                    fontFamily: "Acme ",
+                                    fontWeight: 800,
+                                    color: "#AC7088",
+                                    textDecoration: "none",
+                                }}
+                            >
+                                Admin Panel
+                            </Typography>
+                        ): (
+                            <Tabs
+                                value={value}
+                                onChange={changePage}
+                                className={classes.nav__tabs}
+                            >
+                                {/* <Link to="/home" className={classes.nav__text}>
+                                <Tab
+                                    icon={<HomeIcon />}
+                                    className={classes.nav__text}
+                                    label="Home"
+                                />
+                                </Link> */}
 
-                            {isLogged && isAdmin && null}
-
-                            {isLogged && !isAdmin ? (
-                                <>
-                                    <NavLink
-                                        smooth
-                                        to="/home"
-                                        className={classes.nav__text}
-                                        style={navLinkStyle}
-                                    >
-                                        <Tab
-                                            value="1"
-                                            icon={<HomeIcon />}
+                                {isLogged && !isAdmin ? (
+                                    <>
+                                        <NavLink
+                                            smooth
+                                            to="/home"
                                             className={classes.nav__text}
-                                            label="Home"
+                                            style={navLinkStyle}
+                                        >
+                                            <Tab
+                                                value="1"
+                                                icon={<HomeIcon />}
+                                                className={classes.nav__text}
+                                                label="Home"
+                                            />
+                                        </NavLink>
+
+                                        <NavLink
+                                            smooth
+                                            to="/my-library"
+                                            className={classes.nav__text}
+                                            style={navLinkStyle}
+                                        >
+                                        <Tab
+                                            value="2"
+                                            icon={<AutoStoriesIcon />}
+                                            className={classes.nav__text}
+                                            label="My Library"
                                         />
                                     </NavLink>
+                                    </>
+                                ) : null}
+                            </Tabs>
+                        )}
 
-                                    <NavLink
-                                        smooth
-                                        to="/my-library"
-                                        className={classes.nav__text}
-                                        style={navLinkStyle}
-                                    >
-                                    <Tab
-                                        value="2"
-                                        icon={<AutoStoriesIcon />}
-                                        className={classes.nav__text}
-                                        label="My Library"
-                                    />
-                                </NavLink>
-                                </>
-                            ) : null}
-                        </Tabs>
                     </Box>
                     {isLogged ? (
                         <Box sx={{ flexGrow: 0 }}>
