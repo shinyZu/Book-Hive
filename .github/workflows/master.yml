@@ -68,6 +68,7 @@ jobs:
 
       # 4. Run the Tests
       - name: Run Tests
+        working-directory: ./book-hive-backend
         run: npm test # Specify test scripts here
 
       # 5. Build and Package the application
