@@ -76,7 +76,7 @@ jobs:
       # 8. Build and Package the application
       - name: Build and Package the backend
         working-directory: ./book-hive-backend
-        run: npm run build
+        run: npm run start-dev
 
       - name: Build and Package the frontend
         working-directory: ./book-hive-frontend
